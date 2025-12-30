@@ -47,7 +47,7 @@ export default function FeaturedMenu({
             </div>
 
             {featured.length ? (
-                <ul className="mt-4 grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 px-6 sm:px-0">
+                <ul className="mt-4 grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 px-0">
                     {featured.map((item) => (
                         <li key={item.id}>
                             <MenuCard

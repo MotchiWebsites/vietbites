@@ -72,7 +72,7 @@ export default async function MenuPage() {
     }
 
     return (
-        <main className="bg-cream">
+        <main className="bg-cream rounded-lg">
             {/* Menu JSON-LD schema */}
             <Script id="ld-json-menu" type="application/ld+json">
                 {JSON.stringify({

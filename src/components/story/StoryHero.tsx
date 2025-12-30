@@ -30,7 +30,7 @@ export function StoryHero() {
                         Hi, I&apos;m{" "}
                         <span className="font-semibold text-orange">Lily</span>{" "}
                         (VietBites founder). A few months ago, my partner and I
-                        were still working in the restaurant industry—surrounded
+                        were still working in the restaurant industry, surrounded
                         by hustle, energy, and the love of food. We kept
                         dreaming about{" "}
                         <span className="text-orange font-semibold">
@@ -62,7 +62,7 @@ export function StoryHero() {
                         className="relative aspect-5/6 rounded-xl overflow-hidden ring-1 ring-charcoal/10 shadow-sm"
                     >
                         <Image
-                            src="/images/story/team-placeholder.jpg"
+                            src="/images/story/Team1.jpg"
                             alt="VietBites team"
                             fill
                             sizes="(max-width:1024px) 100vw, 420px"

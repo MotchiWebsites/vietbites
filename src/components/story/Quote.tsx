@@ -24,8 +24,9 @@ export default function Quote() {
                 </div>
 
                 <blockquote className="text-xl md:text-2xl font-heading font-semibold italic text-orange leading-relaxed md:leading-tight tracking-tight">
-                    <span className="lg:hidden">“</span>A quote can go here
-                    about VietBites or other inspirations.
+                    <span className="lg:hidden">“</span>
+                    Rooted in tradition, we share our culture through
+                    traditional dishes that brings our community together.
                     <span className="lg:hidden">”</span>
                 </blockquote>
 
@@ -37,8 +38,8 @@ export default function Quote() {
                         width={32}
                         height={32}
                     />
-                    <p className="text-sm md:text-base text-charcoal/70 font-medium">
-                        — The VietBites Team
+                    <p className="text-sm md:text-base text-charcoal/70 font-semibold">
+                        — Your VietBites Team
                     </p>
                 </div>
             </div>

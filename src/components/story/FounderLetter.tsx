@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function FounderLetter() {
     return (
-        <section className="relative mx-auto mt-16 max-w-5xl px-6 md:px-10">
+        <section className="relative mx-auto mt-16 max-w-5xl px-2 md:px-10">
             {/* OUTER decorative quotes that frame the whole letter */}
             <div className="pointer-events-none absolute -top-2 -left-2 md:-top-8 md:-left-8 text-4xl sm:text-5xl md:text-8xl font-heading text-orange/20 select-none">
                 “
@@ -39,7 +39,7 @@ export default function FounderLetter() {
                     {/* highlighted mission box */}
                     <div className="my-8 relative overflow-hidden rounded-xl bg-linear-to-br from-orange/10 via-orange/5 to-transparent ring-1 ring-orange/20 p-6 md:p-8 shadow-sm">
                         <div className="absolute left-0 top-0 h-1 w-full bg-orange/70 opacity-70" />
-                        <p className="text-base md:text-lg text-charcoal/90 leading-relaxed">
+                        <p className="text-base md:text-lg text-charcoal/90 leading-relaxed font-medium">
                             <span className="block text-orange font-semibold mb-2">
                                 Our Mission
                             </span>
@@ -52,7 +52,7 @@ export default function FounderLetter() {
 
                     <p className="text-base md:text-lg text-charcoal/90">
                         It hasn&apos;t been easy. As a first-time business
-                        owner, we had to figure out everything—from designing
+                        owner, we had to figure out everything, from designing
                         our own menu, to testing recipes, dealing with
                         landlords, even assembling furniture by hand. Every inch
                         of the shop was built with sweat, heart, and many
@@ -68,7 +68,7 @@ export default function FounderLetter() {
                         worth it!
                     </p>
 
-                    <p className="mt-6 text-sm text-charcoal/70">
+                    <p className="mt-6 text-sm text-charcoal/70 font-semibold font-heading">
                         — Lily, Founder
                     </p>
                 </div>
