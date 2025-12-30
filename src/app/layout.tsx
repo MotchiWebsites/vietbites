@@ -26,11 +26,11 @@ const defaultUrl = process.env.NEXT_PUBLIC_BASE_URL
 export const metadata: Metadata = {
     metadataBase: new URL(defaultUrl),
     title: {
-        default: "VietBites Toronto Vietnamese Desserts And Banh Mi",
+        default: "VietBites Toronto | Vietnamese Desserts And Banh Mi",
         template: "%s | VietBites Toronto",
     },
     description:
-        "VietBites is a Vietnamese bakery and cafe in Downtown Toronto serving bánh mì, chè sweet soups, drinks, and desserts inspired by Hải Phòng.",
+        "VietBites is a Vietnamese restuarant/cafe in Downtown Toronto serving bánh mì, chè sweet soups, drinks, and desserts inspired by Vietnamese culture from Hải Phòng.",
     openGraph: {
         siteName: "VietBites",
         type: "website",
@@ -43,6 +43,13 @@ export const metadata: Metadata = {
     robots: {
         index: true,
         follow: true,
+    },
+    icons: {
+        icon: [
+            { url: "/favicon.ico", type: "image/x-icon" },
+            { url: "/icon.png", type: "image/png", sizes: "512x512" },
+        ],
+        apple: [{ url: "/apple-icon.png", sizes: "192x192" }],
     },
 };
 
