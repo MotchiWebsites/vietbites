@@ -184,7 +184,6 @@ export async function POST(req: Request) {
             );
         }
 
-
         const confirmHtml = buildConfirmEmailHtml({ msgId, name });
 
         const confirmPayload: BrevoEmailPayload = {
