@@ -1,22 +1,3 @@
-import type { Metadata } from "next";
-
-export const metadata: Metadata = {
-    title: "Contact Us",
-    description:
-        "Contact VietBites in Toronto with questions about our menu, catering, collaborations, or feedback. Reach us by form or social media platforms.",
-    openGraph: {
-        title: "Contact VietBites In Toronto",
-        description:
-            "Get in touch with VietBites in Downtown Toronto. Use the contact form or connect through Instagram, Facebook, TikTok, or delivery partners.",
-    },
-    twitter: {
-        title: "Contact VietBites In Toronto",
-        description:
-            "Contact VietBites for questions, feedback, or catering inquiries. Use the contact form or reach us on social platforms and delivery apps.",
-    },
-};
-
-/*
 import "server-only";
 import type { Metadata } from "next";
 
@@ -77,32 +58,6 @@ export default async function ContactPage() {
                     </div>
                 </div>
             </section>
-        </main>
-    );
-}
-*/
-
-import { FiMail } from "react-icons/fi";
-
-export default function ContactPage() {
-    return (
-        <main className="min-h-screen flex items-center justify-center bg-cream px-4">
-            <div className="max-w-xl w-full text-center bg-clean backdrop-blur-sm rounded-lg p-8 shadow-md">
-                <FiMail className="mx-auto text-5xl text-orange" />
-                <h1 className="mt-4 text-3xl font-bold">
-                    Contact Page Coming Soon...
-                </h1>
-                <p className="mt-3 text-sm">
-                    This page is coming soon. In the meantime, you can contact us through{" "}
-                    <a
-                        href="mailto:vietbitezinc@gmail.com"
-                        className="text-link underline"
-                    >
-                        email
-                    </a>
-                    .
-                </p>
-            </div>
         </main>
     );
 }

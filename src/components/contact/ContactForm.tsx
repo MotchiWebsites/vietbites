@@ -14,11 +14,22 @@ export default function ContactForm() {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [loading, setLoading] = useState(false);
-    const [result, setResult] = useState<string | null>(null);
+
+    // Result state after submission
+    type ResultState =
+        | { type: "success"; message: string; refId?: string }
+        | { type: "error"; message: string }
+        | null;
+
+    const [result, setResult] = useState<ResultState>(null);
 
     // Validation states
     const [overDescriptionLimit, setOverDescriptionLimit] = useState(false);
     const [phoneValid, setPhoneValid] = useState(true);
+
+    // Anti-bot honeypot and timestamp
+    const [startedAt] = useState(() => Date.now());
+    const [company, setCompany] = useState(""); // honeypot
 
     const reasonHelp: Record<string, string> = {
         "catering requests":
@@ -41,31 +52,50 @@ export default function ContactForm() {
         const payload = {
             name: `${firstName} ${lastName}`.trim(),
             email,
-            subject: title + ` [Category: ${reason}]`,
+            subject: reason ? `${title} - [Category: ${reason}]` : title,
             message: description + (phone ? `\n\nPhone: ${phone}` : ""),
         };
 
         setLoading(true);
         try {
-            // const res = await fetch("/api/contact", {
-            //   method: "POST",
-            //   headers: { "Content-Type": "application/json" },
-            //   body: JSON.stringify(payload),
-            // });
-            // const json = await res.json();
-            // if (!res.ok) throw new Error(json.error || "Failed to send message");
-            // setResult("Thank you! Your message has been sent.");
-            // setFirstName(""); setLastName(""); setEmail(""); setPhone(""); setReason("technical issues"); setTitle(""); setDescription("");
-            console.log("Payload submitted:", payload);
-            setResult(
-                "Thank you! Your message has been sent. (Form submission is currently disabled in demo.)"
-            );
+            const res = await fetch("/api/contact", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    ...payload,
+                    company,
+                    startedAt,
+                }),
+            });
+
+            const json = await res.json();
+
+            if (!res.ok) {
+                // Show server-provided message
+                throw new Error(json?.error || "Failed to send message.");
+            }
+
+            setResult({
+                type: "success",
+                message:
+                    "Thank you for reaching out! We received your message. We will reply soon.",
+                refId: json?.id,
+            });
+            // Clear form
+            setFirstName("");
+            setLastName("");
+            setEmail("");
+            setPhone("");
+            setReason("");
+            setTitle("");
+            setDescription("");
+            setCompany("");
         } catch (err: unknown) {
             let message = "Something went wrong.";
             if (err instanceof Error && err.message) {
                 message = err.message;
             }
-            setResult(message);
+            setResult({ type: "error", message });
         } finally {
             setLoading(false);
         }
@@ -227,6 +257,8 @@ export default function ContactForm() {
                     name="company"
                     tabIndex={-1}
                     autoComplete="off"
+                    value={company}
+                    onChange={(e) => setCompany(e.target.value)}
                 />
             </div>
 
@@ -252,6 +284,7 @@ export default function ContactForm() {
                         !firstName ||
                         !lastName ||
                         !email ||
+                        !reason ||
                         !title ||
                         !description
                     }
@@ -262,8 +295,45 @@ export default function ContactForm() {
             </div>
 
             {result && (
-                <div className="text-sm text-center text-gray-700">
-                    {result}
+                <div
+                    className={[
+                        "flex flex-col items-center text-sm text-center rounded-lg border p-4 gap-2",
+                        result.type === "success"
+                            ? "border-green-300 bg-green-50 text-green-900 shadow-sm"
+                            : "border-red-200 bg-red-50 text-red-700",
+                    ].join(" ")}
+                    role={result.type === "error" ? "alert" : "status"}
+                    aria-live={result.type === "error" ? "assertive" : "polite"}
+                >
+                    <p className="font-semibold">
+                        {result.type === "success"
+                            ? "Message received"
+                            : "Could not send"}
+                    </p>
+
+                    <p className="mt-1 text-charcoal/80">{result.message}</p>
+
+                    {result.type === "success" && result.refId && (
+                        <p className="mt-2 text-xs text-charcoal/60 font-medium">
+                            Reference ID:{" "}
+                            <span className="font-mono">{result.refId}</span>
+                        </p>
+                    )}
+
+                    {result.type === "success" && (
+                        <div className="mt-3 flex items-center justify-center gap-2 text-xs text-charcoal/60">
+                            <img
+                                src="/images/logos/LogoCircle.png"
+                                alt="VietBites"
+                                width={20}
+                                height={20}
+                                className="rounded-full"
+                            />
+                            <span className="font-semibold">
+                                VietBites Team
+                            </span>
+                        </div>
+                    )}
                 </div>
             )}
         </form>
