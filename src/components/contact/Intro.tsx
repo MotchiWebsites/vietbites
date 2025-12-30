@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { GiBread, GiShoppingBag } from "react-icons/gi";
+import { FaInfoCircle } from "react-icons/fa";
 import UrgentBanner from "./UrgentBanner";
 import Tips from "./Tips";
 
@@ -33,7 +33,7 @@ export default function Intro({ className = "" }: { className?: string }) {
                 items={[
                     {
                         icon: (
-                            <GiShoppingBag
+                            <FaInfoCircle
                                 className="h-4 w-4 sm:h-5 sm:w-5 text-orange"
                                 aria-hidden
                             />
@@ -50,7 +50,7 @@ export default function Intro({ className = "" }: { className?: string }) {
                     },
                     {
                         icon: (
-                            <GiBread
+                            <FaInfoCircle
                                 className="h-4 w-4 sm:h-5 sm:w-5 text-orange"
                                 aria-hidden
                             />
