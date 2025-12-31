@@ -72,7 +72,7 @@ export default async function MenuPage() {
     }
 
     return (
-        <main className="bg-cream rounded-lg">
+        <main className="max-w-7xl mx-auto rounded-lg section-cream shadow-sm space-y-10">
             {/* Menu JSON-LD schema */}
             <Script id="ld-json-menu" type="application/ld+json">
                 {JSON.stringify({
@@ -141,7 +141,7 @@ export default async function MenuPage() {
                     { id: "menu-combo", label: "Combo Meals" },
                 ]}
             />
-            <section className="mx-auto max-w-7xl px-4 md:px-6 lg:px-8 pb-10 pt-3 rounded-lg section-cream space-y-8">
+            <section className="mx-auto px-4 md:px-6 lg:px-8 pb-10 pt-3 space-y-8">
                 <SectionHeader
                     title="OUR MENU"
                     subtitle="From traditional Vietnamese Bánh Mì to delightful Sweet Soups and refreshing Drinks, explore our diverse menu crafted to satisfy your cravings."

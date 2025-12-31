@@ -29,7 +29,7 @@ export default async function Footer() {
                             href="/contact"
                             className="inline-flex items-center justify-center rounded-lg bg-orange text-clean px-3 py-2 text-sm font-semibold shadow transition ease-in-out duration-300 hover:bg-orange-hover active:bg-orange-active active:scale-[.98] w-full sm:w-auto"
                         >
-                            Get in touch
+                            Contact Us
                         </Link>
                         <Link
                             href="/menu"

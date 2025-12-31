@@ -1,4 +1,5 @@
 "use client";
+
 import {
     ReactNode,
     useId,
@@ -7,6 +8,10 @@ import {
     ReactElement,
 } from "react";
 import Hint from "@/components/contact/ui/Hint";
+
+function isDomElement(el: ReactElement) {
+    return typeof el.type === "string"; // "input", "textarea", etc.
+}
 
 export default function FormField({
     id,
@@ -47,10 +52,11 @@ export default function FormField({
                 {hint ? <Hint>{hint}</Hint> : null}
             </div>
 
-            {isValidElement(children)
+            {isValidElement(children) && isDomElement(children)
                 ? (() => {
-                      const child = children as ReactElement<Record<string, unknown>>;
-                      // keep existing props, inject id if missing, and aria-required
+                      const child = children as ReactElement<
+                          Record<string, unknown>
+                      >;
                       return cloneElement(child, {
                           ...child.props,
                           id: child.props?.id ?? controlId,

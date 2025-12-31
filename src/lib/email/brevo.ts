@@ -21,12 +21,8 @@ export async function sendBrevoEmail(apiKey: string, payload: BrevoEmailPayload)
 
     if (!res.ok) {
         const errText = await res.text();
-        return {
-            ok: false as const,
-            status: res.status,
-            errText,
-        };
+        return { ok: false as const, errText, status: res.status };
     }
 
-    return { ok: true as const };
+    return { ok: true as const, status: res.status };
 }

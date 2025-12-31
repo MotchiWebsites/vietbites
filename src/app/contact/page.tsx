@@ -1,5 +1,6 @@
 import "server-only";
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
 import Intro from "@/components/contact/Intro";
 import ContactForm from "@/components/contact/ContactForm";
@@ -25,7 +26,21 @@ export const metadata: Metadata = {
     },
 };
 
-export default async function ContactPage() {
+type SearchParams = { [key: string]: string | string[] | undefined };
+
+type PageProps = {
+    searchParams?: Promise<SearchParams>;
+};
+
+export default async function ContactPage({ searchParams }: PageProps) {
+    const sp = (await searchParams) ?? {};
+
+    console.log("CONTACT PAGE searchParams:", sp);
+
+    const reasonParam = sp.reason;
+    const initialReason =
+        typeof reasonParam === "string" ? reasonParam : reasonParam?.[0] ?? "";
+
     const allPlatforms: Platform[] = await getPlatforms();
     const platforms = allPlatforms.filter(
         (p) =>
@@ -38,8 +53,8 @@ export default async function ContactPage() {
     );
 
     return (
-        <main className="max-w-7xl bg-cream">
-            <section className="mx-auto px-4 md:px-6 lg:px-8 pb-10 pt-4 rounded-lg section-cream">
+        <main className="mx-auto w-full max-w-7xl bg-cream">
+            <section className="mx-auto w-full px-4 md:px-6 lg:px-8 pb-10 pt-4 rounded-lg section-cream">
                 <SectionHeader
                     title="CONTACT US"
                     subtitle="The VietBites team is here to help you with any questions or concerns!"
@@ -54,7 +69,12 @@ export default async function ContactPage() {
                 <div className="mt-8 grid grid-cols-1 gap-6">
                     <Intro />
                     <div className="max-w-5xl mx-auto w-full">
-                        <ContactForm />
+                        <Suspense fallback={<div>Loading form...</div>}>
+                            <ContactForm
+                                key={initialReason}
+                                initialReason={initialReason}
+                            />
+                        </Suspense>
                     </div>
                 </div>
             </section>

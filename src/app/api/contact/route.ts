@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import type { BrevoEmailPayload } from "@/lib/email/brevo";
 import { sendBrevoEmail } from "@/lib/email/brevo";
-import { buildAdminEmailText, buildAdminEmailHtml, buildConfirmEmailHtml } from "@/lib/email/templates";
+import {
+    buildAdminEmailText,
+    buildAdminEmailHtml,
+    buildConfirmEmailHtml,
+} from "@/lib/email/templates";
 
 export const runtime = "nodejs";
 
@@ -11,6 +15,7 @@ type ContactPayload = {
     email: string;
     subject: string;
     message: string;
+    meta?: Record<string, string>;
     company?: string;
     startedAt?: number;
 };
@@ -19,6 +24,63 @@ function isEmail(s: string) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
 }
 
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+    return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function normalizeMessage(s: string) {
+    return s
+        .replace(/\r\n/g, "\n")
+        .replace(/^\s+/, "")
+        .trimEnd();
+}
+
+function sanitizeMeta(meta: unknown): Record<string, string> | undefined {
+    if (!isPlainObject(meta)) return undefined;
+
+    const out: Record<string, string> = {};
+    const entries = Object.entries(meta).slice(0, 25); // guardrail
+
+    for (const [kRaw, vRaw] of entries) {
+        const k = String(kRaw).trim();
+        if (!k) continue;
+
+        const v = typeof vRaw === "string" ? vRaw : String(vRaw ?? "");
+        const value = v.trim();
+        if (!value) continue;
+
+        // keep rows readable in email
+        const key = k.slice(0, 60);
+        let val = value.slice(0, 300);
+
+        if (key.toLowerCase() === "reason") {
+            val = toTitleCase(val);
+        }
+
+        out[key] = val;
+    }
+
+    return Object.keys(out).length ? out : undefined;
+}
+
+function toTitleCase(input: string) {
+    return input
+        .trim()
+        .split(/\s+/)
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+        .join(" ");
+}
+
+// Extract "technical issues" from: "... [Category: technical issues]"
+function extractCategory(subject: string) {
+    const m = subject.match(/\[Category:\s*([^\]]+)\]/i);
+    return (m?.[1] ?? "").trim();
+}
+
+// Subject max length
+const SUBJECT_MAX = 160;
+
+// --- in-memory rate limiter (OK for single instance; if you scale horizontally, move to KV/Redis) ---
 const WINDOW_MS = 10 * 60 * 1000;
 const MAX_REQUESTS = 5;
 const ipHits = new Map<string, { count: number; resetAt: number }>();
@@ -46,27 +108,16 @@ function rateLimit(ip: string) {
     return { ok: true, remaining: MAX_REQUESTS - entry.count, resetAt: entry.resetAt };
 }
 
-function toTitleCase(input: string) {
-    return input
-        .trim()
-        .split(/\s+/)
-        .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
-        .join(" ");
-}
-
-// Extract "technical issues" from: "... [Category: technical issues]"
-function extractCategory(subject: string) {
-    const m = subject.match(/\[Category:\s*([^\]]+)\]/i);
-    return (m?.[1] ?? "").trim();
-}
-
 export async function POST(req: Request) {
     try {
         const ip = getClientIp(req);
 
         const rl = rateLimit(ip);
         if (!rl.ok) {
-            const retryInSec = Math.max(1, Math.ceil((rl.resetAt - Date.now()) / 1000));
+            const retryInSec = Math.max(
+                1,
+                Math.ceil((rl.resetAt - Date.now()) / 1000)
+            );
             const retryInMin = Math.ceil(retryInSec / 60);
 
             return NextResponse.json(
@@ -91,26 +142,42 @@ export async function POST(req: Request) {
             const elapsed = Date.now() - body.startedAt;
             if (elapsed < 2000) {
                 return NextResponse.json(
-                    { error: "Please take a moment to review your message and try again.", code: "TOO_FAST" },
+                    {
+                        error: "Please take a moment to review your message and try again.",
+                        code: "TOO_FAST",
+                    },
                     { status: 400 }
                 );
             }
         }
 
-        const name = (body.name || "").trim();
-        const email = (body.email || "").trim();
-        const subjectRaw = (body.subject || "").trim();
-        const message = (body.message || "").trim();
+        const name = String(body.name ?? "").trim().slice(0, 120);
+        const email = String(body.email ?? "").trim().slice(0, 254);
+        const message = normalizeMessage(body.message || "");
+        const meta = sanitizeMeta(body.meta);
 
-        if (!name || !email || !subjectRaw || !message) {
-            return NextResponse.json({ error: "Please fill in all required fields.", code: "VALIDATION" }, { status: 400 });
+        const subjectRaw = String(body.subject ?? "").replace(/\s+/g, " ").trim();
+        const subjectCapped = subjectRaw.slice(0, SUBJECT_MAX);
+
+
+        if (!name || !email || !subjectCapped || !message) {
+            return NextResponse.json(
+                { error: "Please fill in all required fields.", code: "VALIDATION" },
+                { status: 400 }
+            );
         }
         if (!isEmail(email)) {
-            return NextResponse.json({ error: "Please enter a valid email address.", code: "VALIDATION" }, { status: 400 });
+            return NextResponse.json(
+                { error: "Please enter a valid email address.", code: "VALIDATION" },
+                { status: 400 }
+            );
         }
         if (message.length > 5000) {
             return NextResponse.json(
-                { error: "Your message is too long. Please keep it under 5,000 characters.", code: "VALIDATION" },
+                {
+                    error: "Your message is too long. Please keep it under 5,000 characters.",
+                    code: "VALIDATION",
+                },
                 { status: 400 }
             );
         }
@@ -119,25 +186,32 @@ export async function POST(req: Request) {
         const fromEmail = process.env.BREVO_ADMIN_FROM_EMAIL;
         const fromName = process.env.BREVO_ADMIN_FROM_NAME || "VietBites";
         const confirmFromEmail = process.env.BREVO_CONFIRM_FROM_EMAIL;
-        const confirmFromName = process.env.BREVO_CONFIRM_FROM_NAME || "No Reply | VietBites Toronto";
+        const confirmFromName =
+            process.env.BREVO_CONFIRM_FROM_NAME || "No Reply | VietBites Toronto";
         const toEmail = process.env.BREVO_TO_EMAIL;
         const techCcEmail = process.env.BREVO_TECH_CC_EMAIL || "admin@motchi.ca";
         const techCcName = "VietBites Tech Support";
 
         if (!apiKey || !fromEmail || !toEmail || !confirmFromEmail) {
             return NextResponse.json(
-                { error: "Server email is not configured yet. Please try again later.", code: "SERVER_CONFIG" },
+                {
+                    error: "Server email is not configured yet. Please try again later.",
+                    code: "SERVER_CONFIG",
+                },
                 { status: 500 }
             );
         }
 
         const msgId = crypto.randomBytes(6).toString("hex");
 
-        const categoryRaw = extractCategory(subjectRaw);
+        const categoryRaw = extractCategory(subjectCapped);
         const categoryTitle = categoryRaw ? toTitleCase(categoryRaw) : "";
         const subjectNormalized = categoryTitle
-            ? subjectRaw.replace(/\[Category:\s*([^\]]+)\]/i, `[Category: ${categoryTitle}]`)
-            : subjectRaw;
+            ? subjectCapped.replace(
+                /\[Category:\s*([^\]]+)\]/i,
+                `[Category: ${categoryTitle}]`
+            )
+            : subjectCapped;
 
         const adminHtml = buildAdminEmailHtml({
             msgId,
@@ -146,6 +220,7 @@ export async function POST(req: Request) {
             subject: subjectNormalized,
             categoryTitle: categoryTitle || undefined,
             message,
+            meta,
         });
 
         const adminText = buildAdminEmailText({
@@ -155,6 +230,7 @@ export async function POST(req: Request) {
             subject: subjectNormalized,
             categoryTitle: categoryTitle || undefined,
             message,
+            meta,
         });
 
         const isTech = categoryRaw.toLowerCase() === "technical issues";
@@ -171,19 +247,27 @@ export async function POST(req: Request) {
 
         const sentAdmin = await sendBrevoEmail(apiKey, adminPayload);
         if (!sentAdmin.ok) {
+            // Make sure your sendBrevoEmail returns status; if not, update it (snippet below)
             if (sentAdmin.status === 429) {
                 return NextResponse.json(
-                    { error: "We’re receiving a high volume of messages right now. Please try again shortly.", code: "EMAIL_RATE_LIMIT" },
+                    {
+                        error: "We’re receiving a high volume of messages right now. Please try again shortly.",
+                        code: "EMAIL_RATE_LIMIT",
+                    },
                     { status: 429 }
                 );
             }
 
             return NextResponse.json(
-                { error: "We could not send your message right now. Please try again in a minute.", code: "BREVO_FAIL" },
+                {
+                    error: "We could not send your message right now. Please try again in a minute.",
+                    code: "BREVO_FAIL",
+                },
                 { status: 502 }
             );
         }
 
+        // Confirmation always uses the submitted name — for wholesale that is Contact name.
         const confirmHtml = buildConfirmEmailHtml({ msgId, name });
 
         const confirmPayload: BrevoEmailPayload = {
@@ -195,17 +279,20 @@ export async function POST(req: Request) {
                 `Reference ID: ${msgId}\n\n` +
                 `Please do not reply to this message.\n\nVietBites Team`,
             htmlContent: confirmHtml,
-            // no replyTo on purpose
         };
 
         const sentConfirm = await sendBrevoEmail(apiKey, confirmPayload);
         if (!sentConfirm.ok) {
+            // Don't block the form if the confirmation email fails
             console.warn("Confirmation email failed:", sentConfirm.errText);
         }
 
         return NextResponse.json({ ok: true, id: msgId });
     } catch (err) {
         console.error(err);
-        return NextResponse.json({ error: "Something went wrong. Please try again.", code: "UNKNOWN" }, { status: 500 });
+        return NextResponse.json(
+            { error: "Something went wrong. Please try again.", code: "UNKNOWN" },
+            { status: 500 }
+        );
     }
 }
