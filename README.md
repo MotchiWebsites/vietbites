@@ -1,36 +1,91 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# VietBites Website
 
-## Getting Started
+Production website for VietBites Toronto, built with **Next.js (App Router)** and integrated with **Notion CMS** and **Brevo email services**.
 
-First, run the development server:
+This repository contains the public-facing website, including the menu, partnerships pages, and a dynamic contact / wholesale application form.
+
+---
+
+## Tech Stack
+
+- **Framework:** Next.js (App Router)
+- **Styling:** Tailwind CSS
+- **CMS:** Notion (read-only content source)
+- **Email:** Brevo (transactional email API)
+- **Hosting:** Vercel
+- **Language:** TypeScript
+
+---
+
+## Environment Variables
+
+This project requires environment variables to run correctly.  
+**Do not commit secrets to the repo.**
+
+Required variables include:
+
+- `BREVO_API_KEY`
+- `BREVO_ADMIN_FROM_EMAIL`
+- `BREVO_TO_EMAIL`
+- `BREVO_CONFIRM_FROM_EMAIL`
+
+Refer to `.env.example` for the full list.
+
+---
+
+## Running Locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The site will be available at:
+```
+http://localhost:300
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project Structure (High-Level)
+```
+/app
+  /contact
+  /menu
+  /partnerships
 
-## Learn More
+/components
+  /contact
+  /menu
+  /common
 
-To learn more about Next.js, take a look at the following resources:
+/lib
+  /notion
+  /email
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `/lib/notion`→ All Notion database access and normalization
+- `/components/contact` → Contact + Wholesale form logic
+- `/lib/email` → Brevo email payloads and templates
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## Content Management (Notion)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+All menu data, platforms, and structured content are sourced from Notion databases.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This repo does not contain admin tooling, Notion acts as the CMS.
+
+---
+
+## Deployment
+
+- Production deployments occur from the main branch
+- Preview deployments occur from dev and feature branches
+- CI/CD is handled by Vercel
+
+---
+
+## License
+
+© VietBites Toronto. All rights reserved.
