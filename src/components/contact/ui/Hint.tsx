@@ -1,6 +1,7 @@
 "use client";
 import { useRef, useState, type ReactNode } from "react";
-import { LuInfo, LuX } from "react-icons/lu";
+import { LuX } from "react-icons/lu";
+import { FaInfoCircle } from "react-icons/fa";
 import { useClickAway } from "react-use";
 
 export default function Hint({ children }: { children: ReactNode }) {
@@ -17,9 +18,9 @@ export default function Hint({ children }: { children: ReactNode }) {
                 aria-expanded={open}
                 aria-controls="hint-content"
                 onClick={() => setOpen((v) => !v)}
-                className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-orange text-white hover:scale-105 focus:outline-none focus:ring-2 focus:ring-orange-300 focus:ring-offset-2 shadow transition ease-in-out duration-300 cursor-pointer"
+                className="inline-flex items-center justify-center h-4 w-4 rounded-full bg-white text-orange hover:scale-105 focus:outline-none focus:ring-2 focus:ring-orange-300 focus:ring-offset-2 shadow transition ease-in-out duration-300 cursor-pointer"
             >
-                <LuInfo className="h-4 w-4" aria-hidden />
+                <FaInfoCircle className="h-4 w-4" aria-hidden />
                 <span className="sr-only">More info</span>
             </div>
 
@@ -27,14 +28,16 @@ export default function Hint({ children }: { children: ReactNode }) {
             <div
                 id="hint-content"
                 aria-hidden={!open}
-                className={`absolute left-0 top-full mt-2 w-64 rounded-lg border border-gray-100 bg-white p-3 text-xs text-gray-700 shadow-xl ring-1 ring-black/5 
-                            transition-all duration-300 ease-in-out z-99
-                            ${
-                                open
-                                    ? "opacity-100 translate-y-0 scale-100"
-                                    : "opacity-0 -translate-y-2 scale-95 pointer-events-none"
-                            }`
-                        }
+                className={[
+                    "absolute z-50",
+                    "left-1/2 top-full mt-2 -translate-x-1/2",
+                    "w-64 max-w-[90vw]",
+                    "rounded-lg border border-gray-100 bg-white p-3 text-xs text-gray-700 shadow-xl ring-1 ring-black/5",
+                    "transition-all duration-200 ease-out",
+                    open
+                        ? "opacity-100 translate-y-0 scale-100"
+                        : "opacity-0 -translate-y-1 scale-95 pointer-events-none",
+                ].join(" ")}
             >
                 {/* Close button */}
                 <div

@@ -4,6 +4,8 @@ import * as Select from "@radix-ui/react-select";
 import { LuChevronDown, LuCheck } from "react-icons/lu";
 
 type SelectBoxProps = {
+    id?: string;
+    name?: string;
     value: string;
     onChange: (v: string) => void;
     placeholder?: string;
@@ -13,6 +15,8 @@ type SelectBoxProps = {
 };
 
 function SelectBoxRoot({
+    id,
+    name,
     value,
     onChange,
     placeholder,
@@ -23,6 +27,8 @@ function SelectBoxRoot({
     return (
         <Select.Root value={value} onValueChange={onChange}>
             <Select.Trigger
+                id={id}
+                name={name}
                 // Left-align the value, keep arrow on the right.
                 className={
                     "w-full inline-flex items-center justify-between rounded-md border border-gray-300 bg-white px-3 py-2 shadow-sm " +

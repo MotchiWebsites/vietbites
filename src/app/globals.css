@@ -139,7 +139,7 @@ button:focus-visible:not(.select-box button):not(#menu button) {
 /* Links */
 a:not(nav a):not(footer a):not(.section-cream a):not(#menu a):not(#hero a):not(
         #story-link a
-    ):not(#location a) {
+    ):not(#location a):not(#partnership a) {
     color: var(--orange);
     text-decoration: none;
     transition: color 0.3s ease, text-decoration-color 0.3s ease;
@@ -147,7 +147,7 @@ a:not(nav a):not(footer a):not(.section-cream a):not(#menu a):not(#hero a):not(
 
 a:hover:not(nav a):not(footer a):not(.section-cream a):not(#menu a):not(
         #hero a
-    ):not(#hero a):not(#story-link a):not(#location a) {
+    ):not(#hero a):not(#story-link a):not(#location a):not(#partnership a) {
     color: var(--clay);
     text-decoration: underline;
 }

@@ -14,11 +14,11 @@
     "clsx": "^2.1.1",
     "dotenv": "^17.2.2",
     "hamburger-react": "^2.5.2",
-    "next": "16.0.3",
+    "next": "16.1.1",
     "node-fetch": "^3.3.2",
     "qrcode.react": "^4.2.0",
-    "react": "19.2.0",
-    "react-dom": "19.2.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
     "react-icons": "^5.5.0",
     "react-use": "^17.6.0",
     "zod": "^4.1.5"
@@ -27,15 +27,15 @@
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
-    "@types/react": "19.2.5",
+    "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
     "eslint": "^9",
-    "eslint-config-next": "^16.0.3",
+    "eslint-config-next": "16.1.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   },
   "overrides": {
-    "@types/react": "19.2.5",
+    "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3"
   }
 }

@@ -1,79 +1,290 @@
 "use client";
-import { useState } from "react";
+
+import { useEffect, useMemo, useState } from "react";
 import FormField from "@/components/contact/ui/FormField";
 import TextArea from "@/components/contact/ui/TextArea";
 import PhoneInput from "@/components/contact/ui/PhoneInput";
 import SelectBox from "@/components/contact/ui/SelectBox";
+import CountedInput from "@/components/contact/ui/CountedInput";
 
-export default function ContactForm() {
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
+type ResultState =
+    | { type: "success"; message: string; refId?: string }
+    | { type: "error"; message: string }
+    | null;
+
+type ReasonOption = { value: string; label: string };
+
+function normalizeReason(input: string) {
+    return input.trim().toLowerCase();
+}
+
+function prettyReason(reason: string) {
+    return reason.replaceAll("-", " ").replaceAll("_", " ").trim();
+}
+
+function buildSubjectWithCategory(title: string, reason: string) {
+    const t = title.trim();
+    const r = normalizeReason(reason);
+    if (t && r) return `${t} - [Category: ${r}]`;
+    if (t) return t;
+    if (r) return `Contact Form Submission - [Category: ${r}]`;
+    return "Contact Form Submission";
+}
+
+export default function ContactForm({
+    initialReason = "",
+}: {
+    initialReason?: string;
+}) {
+    const reasonOptions: ReasonOption[] = useMemo(
+        () => [
+            { value: "wholesale", label: "Wholesale (B2B) - Business supply" },
+            {
+                value: "catering",
+                label: "Catering / Event - Large orders & quotes",
+            },
+            {
+                value: "collaborations",
+                label: "Collaboration - Brands, creators, pop-ups",
+            },
+            {
+                value: "customer complaints",
+                label: "Customer Complaint - Order or service",
+            },
+            {
+                value: "suggestions",
+                label: "Suggestion - Product or menu improvement",
+            },
+            {
+                value: "hiring inquiries",
+                label: "Hiring Inquiry - Job opportunities",
+            },
+            {
+                value: "technical issues",
+                label: "Technical Issue - Website bug or suggestion",
+            },
+            { value: "other", label: "Other" },
+        ],
+        []
+    );
+
+    // Reason
+    const allowedReasons = useMemo(
+        () => new Set(reasonOptions.map((o) => o.value)),
+        [reasonOptions]
+    );
+
+    const [reason, setReason] = useState(() => {
+        const r = normalizeReason(initialReason);
+        return allowedReasons.has(r) ? r : "";
+    });
+
+    useEffect(() => {
+        const r = normalizeReason(initialReason);
+        if (r && allowedReasons.has(r)) setReason(r);
+    }, [initialReason, allowedReasons]);
+
+    // Identity
+    const [contactName, setContactName] = useState("");
+    const [orgName, setOrgName] = useState(""); // Business / Institution name (optional generally)
+
+    // Wholesale extras
+    const [businessWebsite, setBusinessWebsite] = useState("");
+    const [businessType, setBusinessType] = useState("");
+    const [businessLocation, setBusinessLocation] = useState("");
+    const [estimatedVolume, setEstimatedVolume] = useState("");
+
+    // Shared
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
-    const [reason, setReason] = useState("");
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [loading, setLoading] = useState(false);
-    const [result, setResult] = useState<string | null>(null);
+    const [result, setResult] = useState<ResultState>(null);
 
-    // Validation states
+    // Validation
     const [overDescriptionLimit, setOverDescriptionLimit] = useState(false);
     const [phoneValid, setPhoneValid] = useState(true);
+    const SUBJECT_MAX = 160;
+    const [overSubjectLimit, setOverSubjectLimit] = useState(false);
+
+    // Anti-bot
+    const [startedAt] = useState(() => Date.now());
+    const [company, setCompany] = useState("");
+
+    const normalizedReason = normalizeReason(reason);
+    const isWholesale = normalizedReason === "wholesale";
+
+    const formHeading = useMemo(() => {
+        switch (normalizedReason) {
+            case "wholesale":
+                return {
+                    title: "Wholesale Application",
+                    subtitle:
+                        "Tell us about your business and what you’re looking for.",
+                };
+            case "catering":
+                return {
+                    title: "Catering Inquiry",
+                    subtitle:
+                        "Share your date, guest count, and any dietary needs.",
+                };
+            case "collaborations":
+                return {
+                    title: "Collaboration Inquiry",
+                    subtitle:
+                        "Brands, creators, pop-ups, and community events.",
+                };
+            case "technical issues":
+                return {
+                    title: "Report a Technical Issue",
+                    subtitle: "Tell us what happened and what you expected.",
+                };
+            default:
+                return {
+                    title: "Contact VietBites",
+                    subtitle:
+                        "Send us a message and we’ll get back to you soon.",
+                };
+        }
+    }, [normalizedReason]);
 
     const reasonHelp: Record<string, string> = {
-        "catering requests":
+        wholesale:
+            "Share what you sell, expected volume, location, and any product requirements (pack sizes, lead times).",
+        catering:
             "Share the date/time, guest count, location, dietary needs, and budget range to help us quote fast.",
-        "technical issues":
-            "Tell us what page (e.g., menu), what you expected vs. what happened.",
+        collaborations:
+            "Tell us your idea, timeline, and what success looks like (pop-up, limited item, event, etc.).",
         "customer complaints":
             "Share your order number, date, pickup/delivery location, and what went wrong so we can make it right.",
         suggestions:
-            "Tell us what product or menu idea do you have. Any flavors, ingredients, or styles in mind?",
+            "Tell us what product or menu idea you have. Any flavors, ingredients, or styles in mind?",
         "hiring inquiries":
             "Tell us what role you're interested in, your availability, and a link to your resume/LinkedIn.",
+        "technical issues":
+            "Tell us what page (e.g., menu), what you expected vs. what happened. Screenshots help too.",
         other: "Provide as much detail about your inquiry as possible.",
     };
+
+    const reasonLabel = useMemo(() => {
+        const opt = reasonOptions.find((o) => o.value === normalizedReason);
+        return opt?.label ?? (normalizedReason ? normalizedReason : "-");
+    }, [reasonOptions, normalizedReason]);
+
+    function buildMeta(): Record<string, string> {
+        const meta: Record<string, string> = {
+            Reason: reasonLabel,
+            "Business / Institution": orgName || "-",
+        };
+
+        if (phone.trim()) meta["Phone"] = phone.trim();
+
+        if (isWholesale) {
+            meta["Business Type"] = businessType || "-";
+            meta["Website / Instagram"] = businessWebsite || "-";
+            meta["Location"] = businessLocation || "-";
+            meta["Estimated Volume"] = estimatedVolume || "-";
+        }
+
+        return meta;
+    }
 
     async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         setResult(null);
 
         const payload = {
-            name: `${firstName} ${lastName}`.trim(),
-            email,
-            subject: title + ` [Category: ${reason}]`,
-            message: description + (phone ? `\n\nPhone: ${phone}` : ""),
+            name: contactName.trim(),
+            email: email.trim(),
+            subject: buildSubjectWithCategory(title, normalizedReason),
+            message: description.trim(),
+            meta: buildMeta(),
         };
 
         setLoading(true);
         try {
-            // const res = await fetch("/api/contact", {
-            //   method: "POST",
-            //   headers: { "Content-Type": "application/json" },
-            //   body: JSON.stringify(payload),
-            // });
-            // const json = await res.json();
-            // if (!res.ok) throw new Error(json.error || "Failed to send message");
-            // setResult("Thank you! Your message has been sent.");
-            // setFirstName(""); setLastName(""); setEmail(""); setPhone(""); setReason("technical issues"); setTitle(""); setDescription("");
-            console.log("Payload submitted:", payload);
-            setResult(
-                "Thank you! Your message has been sent. (Form submission is currently disabled in demo.)"
-            );
-        } catch (err: unknown) {
-            let message = "Something went wrong.";
-            if (err instanceof Error && err.message) {
-                message = err.message;
+            const res = await fetch("/api/contact", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    ...payload,
+                    // anti-bot fields are separate, not part of message/meta
+                    company,
+                    startedAt,
+                }),
+            });
+
+            const json = await res.json();
+
+            if (!res.ok) {
+                throw new Error(json?.error || "Failed to send message.");
             }
-            setResult(message);
+
+            setResult({
+                type: "success",
+                message:
+                    "Thank you for reaching out! We received your message. We will reply soon.",
+                refId: json?.id,
+            });
+
+            // Clear form
+            setReason("");
+            setContactName("");
+            setOrgName("");
+            setBusinessWebsite("");
+            setBusinessType("");
+            setBusinessLocation("");
+            setEstimatedVolume("");
+            setEmail("");
+            setPhone("");
+            setTitle("");
+            setDescription("");
+            setCompany("");
+        } catch (err: unknown) {
+            const msg =
+                err instanceof Error && err.message
+                    ? err.message
+                    : "Something went wrong.";
+            setResult({ type: "error", message: msg });
         } finally {
             setLoading(false);
         }
     }
 
+    const requiredDisabled =
+        loading ||
+        overDescriptionLimit ||
+        overSubjectLimit ||
+        !phoneValid ||
+        !email ||
+        !reason ||
+        !title ||
+        !description ||
+        !contactName ||
+        (isWholesale && !orgName);
+
     return (
-        <form onSubmit={onSubmit} className="rounded-lg px-5 md:px-6 space-y-5">
-            {/* Top helper row with required note */}
+        <form onSubmit={onSubmit} className="rounded-lg sm:px-5 md:px-6 space-y-5">
+            <hr />
+
+            {/* Heading (match your lighter style) */}
+            <div className="space-y-1 px-1 mx-auto text-center">
+                <p className="tracking-widest text-xs text-charcoal/60 font-semibold uppercase">
+                    {normalizedReason
+                        ? prettyReason(normalizedReason)
+                        : "contact"}
+                </p>
+
+                <h2 className="text-xl md:text-2xl font-heading font-semibold text-charcoal">
+                    {formHeading.title}
+                </h2>
+
+                <p className="text-sm text-charcoal/70">
+                    {formHeading.subtitle}
+                </p>
+            </div>
+
             <div className="flex flex-col md:flex-row items-start justify-between">
                 <div className="text-sm text-gray-600">
                     Please provide as much detail as you can.
@@ -84,31 +295,71 @@ export default function ContactForm() {
                 </div>
             </div>
 
+            {/* Reason first */}
+            <FormField
+                id="reason"
+                className="select-box"
+                label="Reason for contacting us"
+                required
+            >
+                <SelectBox
+                    id="reason"
+                    value={reason}
+                    placeholder="Select a category for your request..."
+                    onChange={setReason}
+                    aria-label="Reason for contacting us"
+                    className="data-placeholder:text-gray-400"
+                >
+                    {reasonOptions.map((opt) => (
+                        <SelectBox.Item key={opt.value} value={opt.value}>
+                            {opt.label}
+                        </SelectBox.Item>
+                    ))}
+                </SelectBox>
+            </FormField>
+
+            {/* Identity */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <FormField id="firstName" label="First name" required>
+                <FormField
+                    id="contactName"
+                    label="Contact name"
+                    required
+                    hint="Who should we follow up with?"
+                >
                     <input
                         className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base shadow-sm focus:outline-none focus:border-orange focus:ring-2 focus:ring-orange/20"
                         type="text"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
+                        value={contactName}
+                        onChange={(e) => setContactName(e.target.value)}
                         required
-                        autoComplete="given-name"
-                        placeholder="Jane"
+                        placeholder="Your name"
+                        autoComplete="name"
                     />
                 </FormField>
-                <FormField id="lastName" label="Last name" required>
+
+                <FormField
+                    id="orgName"
+                    label="Business / Institution name"
+                    required={isWholesale}
+                    hint={
+                        isWholesale
+                            ? "Required for wholesale"
+                            : "Optional for individuals"
+                    }
+                >
                     <input
                         className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base shadow-sm focus:outline-none focus:border-orange focus:ring-2 focus:ring-orange/20"
                         type="text"
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                        required
-                        autoComplete="family-name"
-                        placeholder="Doe"
+                        value={orgName}
+                        onChange={(e) => setOrgName(e.target.value)}
+                        required={isWholesale}
+                        placeholder="Company, café, school, organization"
+                        autoComplete="organization"
                     />
                 </FormField>
             </div>
 
+            {/* Contact */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <FormField
                     id="email"
@@ -126,6 +377,7 @@ export default function ContactForm() {
                         placeholder="you@example.com"
                     />
                 </FormField>
+
                 <FormField
                     id="phone"
                     label="Phone"
@@ -136,78 +388,111 @@ export default function ContactForm() {
                         value={phone}
                         onChange={(value) => {
                             setPhone(value);
-                            if (value === "") {
-                                setPhoneValid(true);
-                            }
+                            if (value === "") setPhoneValid(true);
                         }}
                         onValidityChange={(ok) => setPhoneValid(ok)}
                     />
                 </FormField>
             </div>
 
-            <FormField
-                id="reason"
-                className="select-box"
-                label="Reason for contacting us"
-                required
-            >
-                <SelectBox
-                    value={reason}
-                    placeholder="Select a category for your request..."
-                    onChange={setReason}
-                    aria-label="Reason for contacting us"
-                    className="data-placeholder:text-gray-400"
-                >
-                    <SelectBox.Item value="catering requests">
-                        Catering / Event Request - Large orders & quotes
-                    </SelectBox.Item>
-                    <SelectBox.Item value="customer complaints">
-                        Customer Complaint - Order or service
-                    </SelectBox.Item>
-                    <SelectBox.Item value="suggestions">
-                        Suggestion - Product or menu improvement
-                    </SelectBox.Item>
-                    <SelectBox.Item value="hiring inquiries">
-                        Hiring Inquiry - Job opportunities
-                    </SelectBox.Item>
-                    <SelectBox.Item value="technical issues">
-                        Technical Issue - Website bug or suggestion
-                    </SelectBox.Item>
-                    <SelectBox.Item value="other">Other</SelectBox.Item>
-                </SelectBox>
-            </FormField>
+            {/* Wholesale extras */}
+            {isWholesale && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <FormField
+                        id="businessType"
+                        label="Business type"
+                        hint="e.g., café, restaurant, retailer"
+                    >
+                        <input
+                            className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base shadow-sm focus:outline-none focus:border-orange focus:ring-2 focus:ring-orange/20"
+                            type="text"
+                            value={businessType}
+                            onChange={(e) => setBusinessType(e.target.value)}
+                            placeholder="Café"
+                        />
+                    </FormField>
 
+                    <FormField
+                        id="businessWebsite"
+                        label="Website / Instagram"
+                        hint="Optional"
+                    >
+                        <input
+                            className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base shadow-sm focus:outline-none focus:border-orange focus:ring-2 focus:ring-orange/20"
+                            type="text"
+                            value={businessWebsite}
+                            onChange={(e) => setBusinessWebsite(e.target.value)}
+                            placeholder="https://..."
+                        />
+                    </FormField>
+
+                    <FormField
+                        id="businessLocation"
+                        label="Location"
+                        hint="City / area"
+                    >
+                        <input
+                            className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base shadow-sm focus:outline-none focus:border-orange focus:ring-2 focus:ring-orange/20"
+                            type="text"
+                            value={businessLocation}
+                            onChange={(e) =>
+                                setBusinessLocation(e.target.value)
+                            }
+                            placeholder="Toronto, ON"
+                        />
+                    </FormField>
+
+                    <FormField
+                        id="estimatedVolume"
+                        label="Estimated volume"
+                        hint="Rough estimate is fine"
+                    >
+                        <input
+                            className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base shadow-sm focus:outline-none focus:border-orange focus:ring-2 focus:ring-orange/20"
+                            type="text"
+                            value={estimatedVolume}
+                            onChange={(e) => setEstimatedVolume(e.target.value)}
+                            placeholder="e.g., 50 units/week"
+                        />
+                    </FormField>
+                </div>
+            )}
+
+            {/* Subject */}
             <FormField
                 id="title"
                 label="Subject"
                 required
-                hint="A short summary, e.g., 'Catering Order for December 20th, 2025'."
+                hint="A short summary, e.g., 'Wholesale Pricing Request' or 'Catering for March 10'."
             >
-                <input
-                    className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base shadow-sm focus:outline-none focus:border-orange focus:ring-2 focus:ring-orange/20"
-                    type="text"
+                <CountedInput
+                    id="title"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    required
+                    max={SUBJECT_MAX}
+                    onValidityChange={setOverSubjectLimit}
                     placeholder="Subject of your message"
                 />
             </FormField>
 
+            {/* Description */}
             <FormField
                 id="description"
                 label="Description (max 5,000 characters)"
                 required
             >
-                {/* Contextual guidance under description */}
                 {reason && (
                     <div className="rounded-md bg-white text-sm text-charcoal/70 p-3 shadow-sm mb-2 border border-charcoal/10">
                         <p className="font-medium mb-1">
-                            When filling out the description for {reason},
-                            please make sure to:
+                            When filling out the description for{" "}
+                            {prettyReason(reason)}, please make sure to:
                         </p>
-                        <p className="font-semibold">{reasonHelp[reason]}</p>
+                        <p className="font-semibold">
+                            {reasonHelp[normalizedReason] || reasonHelp.other}
+                        </p>
                     </div>
                 )}
+
                 <TextArea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
@@ -219,7 +504,7 @@ export default function ContactForm() {
                 />
             </FormField>
 
-            {/* Honeypot field to discourage bots */}
+            {/* Honeypot */}
             <div className="sr-only" aria-hidden>
                 <label htmlFor="company">Company</label>
                 <input
@@ -227,6 +512,8 @@ export default function ContactForm() {
                     name="company"
                     tabIndex={-1}
                     autoComplete="off"
+                    value={company}
+                    onChange={(e) => setCompany(e.target.value)}
                 />
             </div>
 
@@ -240,30 +527,59 @@ export default function ContactForm() {
                 {overDescriptionLimit && (
                     <div className="text-sm text-red-600 mb-1">
                         You have exceeded the 5000 character limit. Please
-                        adjust to be able to submit the form.
+                        adjust to submit.
                     </div>
                 )}
+
                 <button
                     type="submit"
-                    disabled={
-                        loading ||
-                        overDescriptionLimit ||
-                        !phoneValid ||
-                        !firstName ||
-                        !lastName ||
-                        !email ||
-                        !title ||
-                        !description
-                    }
-                    className="inline-flex items-center justify-center rounded-md bg-orange px-5 py-2 text-white font-semibold shadow-sm "
+                    disabled={requiredDisabled}
+                    className="inline-flex items-center justify-center rounded-md bg-orange px-5 py-2 text-white font-semibold shadow-sm"
                 >
                     {loading ? "Submitting…" : "Submit Request"}
                 </button>
             </div>
 
             {result && (
-                <div className="text-sm text-center text-gray-700">
-                    {result}
+                <div
+                    className={[
+                        "flex flex-col items-center text-sm text-center rounded-lg border p-4 gap-2",
+                        result.type === "success"
+                            ? "border-green-300 bg-green-50 text-green-900 shadow-sm"
+                            : "border-red-200 bg-red-50 text-red-700",
+                    ].join(" ")}
+                    role={result.type === "error" ? "alert" : "status"}
+                    aria-live={result.type === "error" ? "assertive" : "polite"}
+                >
+                    <p className="font-semibold">
+                        {result.type === "success"
+                            ? "Message received"
+                            : "Could not send"}
+                    </p>
+
+                    <p className="mt-1 text-charcoal/80">{result.message}</p>
+
+                    {result.type === "success" && result.refId && (
+                        <p className="mt-2 text-xs text-charcoal/60 font-medium">
+                            Reference ID:{" "}
+                            <span className="font-mono">{result.refId}</span>
+                        </p>
+                    )}
+
+                    {result.type === "success" && (
+                        <div className="mt-3 flex items-center justify-center gap-2 text-xs text-charcoal/60">
+                            <img
+                                src="/images/logos/LogoCircle.png"
+                                alt="VietBites"
+                                width={20}
+                                height={20}
+                                className="rounded-full"
+                            />
+                            <span className="font-semibold">
+                                VietBites Team
+                            </span>
+                        </div>
+                    )}
                 </div>
             )}
         </form>

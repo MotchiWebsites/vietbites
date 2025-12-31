@@ -53,7 +53,7 @@ export default function LocationSection() {
                                 href="/contact"
                                 className="button-outline w-full 2xl:w-auto py-3 px-5 font-heading font-medium rounded-lg text-center"
                             >
-                                Get in Touch
+                                Contact Us
                             </Link>
                         </div>
 

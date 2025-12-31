@@ -11,6 +11,7 @@ const navLinks = [
     { href: "/story", label: "Our Story" },
     { href: "/menu", label: "Menu" },
     { href: "/location", label: "Location/Hours" },
+    { href: "/partnership", label: "Partnerships" },
 ];
 
 export default function Navbar() {
@@ -62,7 +63,7 @@ export default function Navbar() {
                             href="/contact"
                             className="inline-flex items-center rounded-full bg-orange text-clean px-4 py-2 text-sm font-semibold shadow transition duration-200 hover:bg-orange-hover active:bg-orange-active active:scale-[.98]"
                         >
-                            Get in touch
+                            Contact Us
                         </Link>
                     </li>
                 </ul>
@@ -141,7 +142,7 @@ export default function Navbar() {
                                 onClick={() => setOpen(false)}
                                 className="block text-center rounded-full bg-orange text-clean px-4 py-2 font-semibold shadow hover:bg-clay transition-colors active:scale-[.98]"
                             >
-                                Get in touch
+                                Contact Us
                             </Link>
                         </li>
                     </ul>
