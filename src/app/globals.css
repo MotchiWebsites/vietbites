@@ -164,7 +164,7 @@ hr {
     opacity: 0.9;
 }
 
-hr:not(#hours ul hr) {
+hr:not(#hours ul hr):not(#reason-divider) {
     margin: 2rem 0;
 }
 

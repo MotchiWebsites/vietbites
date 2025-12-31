@@ -12,7 +12,11 @@ type ResultState =
     | { type: "error"; message: string }
     | null;
 
-type ReasonOption = { value: string; label: string };
+type ReasonOption = {
+    value: string; // for redirects/backend
+    label: string; // name shown
+    desc: string; // frontend-only helper text
+};
 
 function normalizeReason(input: string) {
     return input.trim().toLowerCase();
@@ -38,32 +42,46 @@ export default function ContactForm({
 }) {
     const reasonOptions: ReasonOption[] = useMemo(
         () => [
-            { value: "wholesale", label: "Wholesale (B2B) - Business supply" },
             {
                 value: "catering",
-                label: "Catering / Event - Large orders & quotes",
+                label: "Catering & Events",
+                desc: "For large orders, office catering, parties, and special events.",
+            },
+            {
+                value: "wholesale",
+                label: "B2B Partnership / Wholesale",
+                desc: "For businesses interested in collaborations or carrying VietBites products.",
+            },
+            {
+                value: "general inquiry",
+                label: "General Inquiry",
+                desc: "For questions about our menu, pricing, or store details.",
+            },
+            {
+                value: "feedback & complaints",
+                label: "Feedback & Complaints",
+                desc: "Share your experience or concerns to help us improve.",
             },
             {
                 value: "collaborations",
-                label: "Collaboration - Brands, creators, pop-ups",
+                label: "Media / Influencer Collaboration",
+                desc: "For creators, press, or marketing partnership inquiries.",
             },
             {
-                value: "customer complaints",
-                label: "Customer Complaint - Order or service",
-            },
-            {
-                value: "suggestions",
-                label: "Suggestion - Product or menu improvement",
-            },
-            {
-                value: "hiring inquiries",
-                label: "Hiring Inquiry - Job opportunities",
+                value: "custom orders",
+                label: "Custom Orders / Special Requests",
+                desc: "For personalized orders or specific requests (subject to availability).",
             },
             {
                 value: "technical issues",
-                label: "Technical Issue - Website bug or suggestion",
+                label: "Technical Issues / Suggestions",
+                desc: "For any bugs, website suggestions, or technical issues when using our products.",
             },
-            { value: "other", label: "Other" },
+            {
+                value: "other",
+                label: "Other",
+                desc: "If none of the categories fit, choose this and describe what you need.",
+            },
         ],
         []
     );
@@ -150,20 +168,20 @@ export default function ContactForm({
     }, [normalizedReason]);
 
     const reasonHelp: Record<string, string> = {
-        wholesale:
-            "Share what you sell, expected volume, location, and any product requirements (pack sizes, lead times).",
         catering:
             "Share the date/time, guest count, location, dietary needs, and budget range to help us quote fast.",
+        wholesale:
+            "Let us know about your business, who your customers are, and what products you’re interested in.",
+        "general inquiry":
+            "Feel free to ask about our menu, pricing, store hours, or any other questions you have.",
+        "feedback & complaints":
+            "Please provide details about your experience, including date, location, and what went right / wrong.",
         collaborations:
             "Tell us your idea, timeline, and what success looks like (pop-up, limited item, event, etc.).",
-        "customer complaints":
-            "Share your order number, date, pickup/delivery location, and what went wrong so we can make it right.",
-        suggestions:
-            "Tell us what product or menu idea you have. Any flavors, ingredients, or styles in mind?",
-        "hiring inquiries":
-            "Tell us what role you're interested in, your availability, and a link to your resume/LinkedIn.",
+        "custom orders":
+            "Let us know what you need, your timeline, and any special requests. We’ll see what we can do!",
         "technical issues":
-            "Tell us what page (e.g., menu), what you expected vs. what happened. Screenshots help too.",
+            "Tell us what page (e.g., menu), what you expected vs. what happened.",
         other: "Provide as much detail about your inquiry as possible.",
     };
 
@@ -265,7 +283,10 @@ export default function ContactForm({
         (isWholesale && !orgName);
 
     return (
-        <form onSubmit={onSubmit} className="rounded-lg sm:px-5 md:px-6 space-y-5">
+        <form
+            onSubmit={onSubmit}
+            className="rounded-lg sm:px-5 md:px-6 space-y-5"
+        >
             <hr />
 
             {/* Heading (match your lighter style) */}
@@ -311,9 +332,14 @@ export default function ContactForm({
                     className="data-placeholder:text-gray-400"
                 >
                     {reasonOptions.map((opt) => (
-                        <SelectBox.Item key={opt.value} value={opt.value}>
-                            {opt.label}
-                        </SelectBox.Item>
+                        <div key={opt.value}>
+                            <SelectBox.Item
+                                value={opt.value}
+                                label={opt.label}
+                                desc={opt.desc}
+                            />
+                            <hr id="reason-divider" className="my-2 hidden md:block" />
+                        </div>
                     ))}
                 </SelectBox>
             </FormField>

@@ -26,31 +26,33 @@ export default function MenuMobileNav({
         if (open) setOpen(false);
     });
 
-    // Scroll-spy: find section closest to top
     useEffect(() => {
         if (!sections.length) return;
 
-        const handleScroll = () => {
-            let closestId: string | null = null;
-            let smallestOffset = Infinity;
+        const getActive = () => {
+            // This is the line in the viewport we consider "current section"
+            // (slightly below the top to account for any header)
+            const threshold = 120;
 
-            sections.forEach(({ id }) => {
+            let current: string | null = sections[0]?.id ?? null;
+
+            for (const { id } of sections) {
                 const el = document.getElementById(id);
-                if (!el) return;
+                if (!el) continue;
 
-                const rect = el.getBoundingClientRect();
-                const offset = Math.abs(rect.top - 80); // adjust anchor height to taste
+                const top = el.getBoundingClientRect().top;
 
-                if (offset < smallestOffset) {
-                    smallestOffset = offset;
-                    closestId = id;
-                }
-            });
-
-            if (closestId) {
-                setActiveId(closestId);
+                // once a section's heading is above the threshold line, it becomes current
+                if (top <= threshold) current = id;
+                else break; // important: headings are in DOM order, so we can stop early
             }
 
+            return current;
+        };
+
+        const handleScroll = () => {
+            const next = getActive();
+            if (next) setActiveId(next);
             setHasScrolled(window.scrollY > 40);
         };
 
@@ -77,15 +79,24 @@ export default function MenuMobileNav({
 
     return (
         <div
-            id={"menu"}
+            id="menu"
             ref={containerRef}
             className={[
-                "sm:hidden fixed inset-x-0 bottom-0 z-30 bg-cream/95 backdrop-blur border-t border-charcoal/10 transition-shadow",
-                hasScrolled
-                    ? "shadow-[0_-4px_12px_rgba(15,23,42,0.16)]"
-                    : "shadow-none",
+                "sm:hidden fixed inset-x-0 bottom-0 mb-0 z-30",
+                "bg-cream/90 backdrop-blur-md",
+                "border-t border-charcoal/20",
+                "shadow-[0_-8px_24px_rgba(15,23,42,0.10)]",
             ].join(" ")}
         >
+            <div
+                aria-hidden
+                className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-orange/10 blur-3xl"
+            />
+            <div
+                aria-hidden
+                className="pointer-events-none absolute -right-24 -bottom-24 h-80 w-80 rounded-full bg-green/10 blur-3xl"
+            />
+            <div className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-charcoal/10" />
             <div className="mx-auto max-w-7xl px-4 md:px-6 lg:px-8 py-2 flex items-center justify-between h-16 gap-3">
                 <p className="text-xs font-medium text-charcoal/70 uppercase tracking-wide">
                     Browse menu
