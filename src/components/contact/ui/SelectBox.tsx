@@ -55,40 +55,67 @@ function SelectBoxRoot({
             <Select.Portal>
                 <Select.Content
                     className={
-                        "z-50 overflow-hidden rounded-md border border-gray-100 bg-white shadow-lg " +
-                        "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95"
+                        "z-50 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-lg " +
+                        "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 " +
+                        "w-[min(75vw,28rem)] max-w-[75vw] max-h-[40vh] md:max-h-[50vh]"
                     }
                     position="popper"
-                    sideOffset={6}
+                    sideOffset={8}
+                    collisionPadding={12}
                 >
-                    {/* optional: make viewport text responsive too */}
-                    <Select.Viewport className="p-1 text-sm md:text-base">
+                    {/* scroll buttons (nice on desktop, harmless on mobile) */}
+                    <Select.ScrollUpButton className="flex h-8 items-center justify-center text-gray-500">
+                        ▲
+                    </Select.ScrollUpButton>
+
+                    <Select.Viewport className="p-2 max-h-[60vh] overflow-y-auto overflow-x-hidden overscroll-contain">
                         {children}
                     </Select.Viewport>
+
+                    <Select.ScrollDownButton className="flex h-8 items-center justify-center text-gray-500">
+                        ▼
+                    </Select.ScrollDownButton>
                 </Select.Content>
             </Select.Portal>
         </Select.Root>
     );
 }
 
-type ItemProps = React.ComponentPropsWithoutRef<typeof Select.Item>;
+type ItemProps = React.ComponentPropsWithoutRef<typeof Select.Item> & {
+    label: string;
+    desc?: string;
+};
 
-function SelectBoxItem({ children, className, ...props }: ItemProps) {
+function SelectBoxItem({ label, desc, className, ...props }: ItemProps) {
     return (
         <Select.Item
             className={
-                "relative flex w-full cursor-pointer select-none items-center gap-2 rounded px-3 py-2 text-gray-800 text-sm md:text-base " +
-                "outline-none data-highlighted:bg-orange-50 data-highlighted:text-orange " + // highlight on hover/keys
-                "data-[state=checked]:bg-orange-100 data-[state=checked]:text-orange " + // selected style
-                "text-left " +
+                "relative w-full cursor-pointer select-none rounded-lg px-3 py-2 " +
+                "outline-none data-highlighted:bg-orange-50 data-highlighted:text-orange " +
+                "data-[state=checked]:bg-orange-100 data-[state=checked]:text-orange " +
                 (className ? ` ${className}` : "")
             }
             {...props}
         >
-            <Select.ItemText className="truncate">{children}</Select.ItemText>
-            <Select.ItemIndicator className="ml-auto text-orange">
-                <LuCheck className="h-4 w-4" aria-hidden />
-            </Select.ItemIndicator>
+            <div className="flex items-start gap-2">
+                {/* This is what Radix uses in the Trigger when selected */}
+                <Select.ItemText>
+                    <span className="block text-sm md:text-base font-medium text-charcoal text-left">
+                        {label}
+                    </span>
+                </Select.ItemText>
+
+                <Select.ItemIndicator className="ml-auto mt-0.5 text-orange">
+                    <LuCheck className="h-4 w-4" aria-hidden />
+                </Select.ItemIndicator>
+            </div>
+
+            {/* This is only for the dropdown list UI */}
+            {desc ? (
+                <p className="mt-0.5 text-xs text-charcoal/60 leading-snug text-left">
+                    {desc}
+                </p>
+            ) : null}
         </Select.Item>
     );
 }

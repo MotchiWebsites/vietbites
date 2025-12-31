@@ -23,24 +23,20 @@ export default function Quote() {
                     ”
                 </div>
 
-                <blockquote className="text-xl md:text-2xl font-heading font-semibold italic text-orange leading-relaxed md:leading-tight tracking-tight">
+                <blockquote className="text-xl md:text-2xl font-heading font-semibold italic h-full flex items-center justify-center text-orange leading-relaxed md:leading-tight tracking-tight">
                     <span className="lg:hidden">“</span>
-                    Rooted in tradition, we share our culture through
-                    traditional dishes that brings our community together.
+                    Just one more bite...
                     <span className="lg:hidden">”</span>
                 </blockquote>
 
-                <div className="mt-6 flex items-center gap-3">
+                <div className="mt-6 flex items-center justify-center gap-3">
                     <Image
-                        src="/images/logos/LogoCircle.png"
+                        src="/images/banners/Banner.png"
                         alt="VietBites logo"
-                        className="h-8 w-8 shrink-0 rounded-full object-cover"
+                        className="w-1/4 max-w-48 min-w-32 h-auto shrink-0 rounded-lg shadow-sm object-cover"
                         width={32}
                         height={32}
                     />
-                    <p className="text-sm md:text-base text-charcoal/70 font-semibold">
-                        — Your VietBites Team
-                    </p>
                 </div>
             </div>
         </section>
