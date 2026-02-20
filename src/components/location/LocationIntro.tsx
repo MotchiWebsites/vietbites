@@ -28,7 +28,7 @@ function getToday(hours: OpeningHour[]) {
         return (
             hours.find(
                 (h: OpeningHour) =>
-                    (h.day || "").toString().toLowerCase() === todayName
+                    (h.day || "").toString().toLowerCase() === todayName,
             ) || hours[now.getDay()]
         );
     }
@@ -38,14 +38,14 @@ function getToday(hours: OpeningHour[]) {
     return null;
 }
 function normalizeIntervals(
-    today: OpeningHour | OpeningHour[] | null
+    today: OpeningHour | OpeningHour[] | null,
 ): { start: string; end: string } | null {
     if (!today) return null;
 
     if (Array.isArray(today)) {
         console.error(
             "normalizeIntervals: expected a single OpeningHour object but received an array. Using the first element.",
-            today
+            today,
         );
         today = today[0];
         if (!today) return null;
@@ -105,7 +105,7 @@ function statusMessage(hours: OpeningHour[]) {
             return `${hour12}:${pad(mm)} ${period}`;
         };
         return `We open later today at ${format12(startM)} until ${format12(
-            endM
+            endM,
         )}.`;
     }
 
@@ -125,7 +125,7 @@ export default function LocationIntro({ hours }: { hours: OpeningHour[] }) {
                     </>
                 }
             />
-            <div className="rounded-xl bg-clean p-6 shadow-sm ring-1 ring-charcoal/10 max-w-lg mx-auto mt-6 space-y-4">
+            <div className="rounded-xl bg-clean p-6 shadow-sm ring-1 ring-charcoal/10 max-w-lg xl:max-w-md mx-auto mt-6 space-y-4">
                 <div className="flex items-center gap-3">
                     <Image
                         src="/images/logos/LogoCircle.png"

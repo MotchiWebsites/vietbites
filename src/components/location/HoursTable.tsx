@@ -57,7 +57,8 @@ export default async function HoursTable({ hours }: { hours: OpeningHour[] }) {
             p.name === "TikTok" ||
             p.name === "Email" ||
             p.name === "DoorDash" ||
-            p.name === "UberEats"
+            p.name === "UberEats" ||
+            p.name === "PikaPoint"
     );
 
     return (

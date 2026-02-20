@@ -66,7 +66,7 @@ export default async function Footer() {
                     </p>
 
                     <div className="mt-3 flex gap-3 justify-center md:justify-start">
-                        <Platforms items={allPlatforms} variant="compact" rowSize={4} tone="subtle" />
+                        <Platforms items={allPlatforms} variant="compact" tone="subtle" />
                     </div>
                 </div>
             </div>

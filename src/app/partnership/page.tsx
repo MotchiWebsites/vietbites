@@ -85,6 +85,8 @@ export default function PartnershipPage() {
                     imageAlt="VietBites collaboration art"
                     imagePlacement="top"
                 />
+
+                <hr />
             </section>
         </main>
     );

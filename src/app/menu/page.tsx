@@ -49,7 +49,7 @@ export default async function MenuPage() {
 
     const allPlatforms: Platform[] = await getPlatforms();
     const platforms = allPlatforms.filter(
-        (p) => p.name === "DoorDash" || p.name === "UberEats"
+        (p) => p.name === "DoorDash" || p.name === "UberEats" || p.name === "PikaPoint"
     );
 
     if (
