@@ -22,7 +22,7 @@ export default function Navbar() {
         <header className="sticky top-0 z-50 bg-clean/95 backdrop-blur supports-backdrop-filter:bg-clean/80 border-b border-charcoal/10 shadow-sm">
             <div className="h-1 bg-orange/80"></div>
 
-            <nav className="mx-auto max-w-[1440px] px-4 py-3 flex items-center justify-between">
+            <nav className="mx-auto max-w-360 px-4 py-3 flex items-center justify-between">
                 {/* Left: Logo */}
                 <Link
                     href="/"
@@ -40,7 +40,7 @@ export default function Navbar() {
                 </Link>
 
                 {/* Desktop nav */}
-                <ul className="hidden md:flex items-center gap-6 font-medium font-heading">
+                <ul className="hidden lg:flex items-center gap-6 font-medium font-heading">
                     {navLinks.map((l) => {
                         const active = pathname === l.href;
                         return (
@@ -69,7 +69,7 @@ export default function Navbar() {
                 </ul>
 
                 {/* Mobile hamburger */}
-                <div className="md:hidden">
+                <div className="lg:hidden">
                     <Hamburger
                         toggled={open}
                         toggle={setOpen}
@@ -82,7 +82,7 @@ export default function Navbar() {
 
             {/* Mobile drawer */}
             <nav
-                className={`md:hidden bg-clean border-t border-charcoal/10 transition-[max-height,opacity] duration-200 overflow-hidden ${
+                className={`lg:hidden bg-clean border-t border-charcoal/10 transition-[max-height,opacity] duration-200 overflow-hidden ${
                     open ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
                 }`}
             >
@@ -140,7 +140,7 @@ export default function Navbar() {
                             <Link
                                 href="/contact"
                                 onClick={() => setOpen(false)}
-                                className="block text-center rounded-full bg-orange text-clean px-4 py-2 font-semibold shadow hover:bg-clay transition-colors active:scale-[.98]"
+                                className="block max-w-sm mx-auto text-center rounded-full bg-orange text-clean px-4 py-2 font-semibold shadow hover:bg-clay transition-colors active:scale-[.98]"
                             >
                                 Contact Us
                             </Link>

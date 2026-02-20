@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import "./Hero.css";
 import OpenToday from "./OpenToday";
-import QRCode from "./QRCode/QRCode";
 import { getHours } from "@/lib/notion/hours";
 
 export default async function Hero({
@@ -14,7 +13,7 @@ export default async function Hero({
         <section
             id="hero"
             className="frame-clipped overflow-hidden rounded-2xl bg-cream px-8 py-16 
-             md:px-16 md:py-24 lg:py-32 min-h-[600px] md:min-h-[700px] lg:min-h-[800px]"
+             md:px-16 md:py-24 lg:py-32 min-h-150 md:min-h-175 lg:min-h-200"
         >
             {/* Floating product images */}
             <div
@@ -28,7 +27,7 @@ export default async function Hero({
                         width={220}
                         height={150}
                         style={{ height: "auto", width: "200px" }}
-                        className="h-auto aspect-auto w-[200px] lg:w-[220px] object-cover -rotate-20"
+                        className="h-auto aspect-auto w-50 lg:w-55 object-cover -rotate-20"
                         priority
                     />
                 </div>
@@ -39,7 +38,7 @@ export default async function Hero({
                         width={200}
                         height={260}
                         style={{ height: "auto", width: "180px" }}
-                        className="h-auto w-[180px] xl:w-[200px] object-cover"
+                        className="h-auto w-45 xl:w-50 object-cover"
                         priority
                     />
                 </div>
@@ -50,7 +49,7 @@ export default async function Hero({
                         width={210}
                         height={210}
                         style={{ height: "auto" }}
-                        className="h-auto w-[190px] xl:w-[210px] object-cover"
+                        className="h-auto w-45 xl:w-50 object-cover"
                         priority
                     />
                 </div>
@@ -79,24 +78,35 @@ export default async function Hero({
                     </p>
 
                     <div className="mt-8 w-3/4 mx-auto sm:w-full flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
-                        <Link
-                            href="/menu"
-                            className="text-center rounded-lg bg-orange text-clean px-5 py-3 font-semibold shadow transition duration-200 hover:bg-orange-hover active:bg-orange-active active:scale-[.98]"
-                        >
-                            View Menu
-                        </Link>
-                        <Link
-                            href="/story"
-                            className="text-center button-outline px-5 py-3 text-sm md:text-base font-heading font-medium rounded-lg"
-                        >
-                            Our Story
-                        </Link>
-                        <Link
-                            href="/location"
-                            className="text-center button-outline px-5 py-3 text-sm md:text-base font-heading font-medium rounded-lg"
-                        >
-                            Visit Us
-                        </Link>
+                        <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
+                            <Link
+                                href="/menu"
+                                className="text-center rounded-lg bg-orange text-clean px-5 py-3 font-semibold shadow transition duration-200 hover:bg-orange-hover active:bg-orange-active active:scale-[.98]"
+                            >
+                                View Menu
+                            </Link>
+                            <a
+                                href="https://vietbites.pikapoint.io/"
+                                target="_blank"
+                                className="text-center rounded-lg bg-charcoal text-clean px-5 py-3 font-semibold shadow transition duration-200 hover:bg-charcoal/95 active:bg-charcoal-active active:scale-[.98]"
+                            >
+                                Order Online
+                            </a>
+                        </div>
+                        <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
+                            <Link
+                                href="/story"
+                                className="text-center button-outline px-5 py-3 text-sm md:text-base font-heading font-medium rounded-lg"
+                            >
+                                Our Story
+                            </Link>
+                            <Link
+                                href="/location"
+                                className="text-center button-outline px-5 py-3 text-sm md:text-base font-heading font-medium rounded-lg"
+                            >
+                                Visit Us
+                            </Link>
+                        </div>
                     </div>
 
                     {/* Today’s hours */}
