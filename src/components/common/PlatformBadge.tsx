@@ -7,6 +7,7 @@ import {
     SiDoordash,
     SiUbereats,
 } from "react-icons/si";
+import { HiOutlineShoppingBag } from "react-icons/hi2";
 import { MdLanguage, MdOutlineMail, MdOutlineLocationOn } from "react-icons/md";
 import { GrMultimedia } from "react-icons/gr"; // fallback icon
 
@@ -35,6 +36,13 @@ const brandStyles: Record<
         hover: "hover:bg-emerald-700 hover:text-white",
         ring: "ring-emerald-200",
         border: "border-emerald-300",
+    },
+    PikaPoint: {
+        bg: "bg-stone-50",
+        text: "text-stone-600",
+        hover: "hover:bg-stone-600 hover:text-white",
+        ring: "ring-stone-200",
+        border: "border-stone-300",
     },
     other: {
         bg: "bg-charcoal/5",
@@ -72,6 +80,12 @@ const defaultIcons: Record<string, ReactNode> = {
     UberEats: (
         <SiUbereats className="h-5 w-5 md:h-6 md:w-6" aria-hidden="true" />
     ),
+    PikaPoint: (
+        <HiOutlineShoppingBag
+            className="h-5 w-5 md:h-6 md:w-6"
+            aria-hidden="true"
+        />
+    ),
     other: (
         <GrMultimedia className="h-5 w-5 md:h-6 md:w-6" aria-hidden="true" />
     ),
@@ -88,11 +102,12 @@ export type PlatformBadgeProps = {
     variant?: "compact" | "full";
     /** "solid" = vibrant, "subtle" = bordered/ghost style */
     tone?: "solid" | "subtle";
+    /** on mobile, should the badge take full width? (compact variant only) */
+    fullWidthOnMobile?: boolean;
     /** aria label when compact has no visible text */
     ariaLabel?: string;
     className?: string;
 };
-
 export default function PlatformBadge({
     name = "other",
     url,
@@ -100,6 +115,7 @@ export default function PlatformBadge({
     icon,
     variant = "full",
     tone = "solid",
+    fullWidthOnMobile = false,
     ariaLabel,
     className,
 }: PlatformBadgeProps) {
@@ -111,8 +127,11 @@ export default function PlatformBadge({
         name === "Email" ||
         name === "Location"
             ? brandStyles.Socials
-            : brandStyles[name] ?? brandStyles.other;
+            : (brandStyles[name] ?? brandStyles.other);
+
     const Icon = icon ?? defaultIcons[name] ?? defaultIcons.other;
+
+    const isFullWidth = variant === "full" && fullWidthOnMobile;
 
     return (
         <a
@@ -121,9 +140,14 @@ export default function PlatformBadge({
             rel="noopener noreferrer"
             aria-label={variant === "compact" ? ariaLabel || label : undefined}
             className={clsx(
-                "relative inline-flex items-center w-fit gap-2 rounded-full border transition duration-200",
+                "relative inline-flex items-center gap-2 rounded-full border transition duration-200",
                 "px-4 py-2 text-sm md:text-base font-semibold font-heading",
-                tone === "solid" || name === "UberEats" || name === "DoorDash"
+                variant === "compact" && "w-12 h-12 p-0 justify-center",
+                isFullWidth ? "w-full sm:w-fit justify-center" : "w-fit",
+                tone === "solid" ||
+                    name === "UberEats" ||
+                    name === "DoorDash" ||
+                    name === "PikaPoint"
                     ? [brand.bg, brand.text, brand.hover]
                     : [
                           "bg-transparent",
@@ -137,7 +161,7 @@ export default function PlatformBadge({
                 "transform-gpu will-change-transform hover:scale-[1.03] active:scale-[.98]",
                 "outline-none focus-visible:ring-2 focus-visible:ring-orange/40",
                 tone === "subtle" && brand.border,
-                className
+                className,
             )}
             style={{ transformOrigin: "center" }}
         >

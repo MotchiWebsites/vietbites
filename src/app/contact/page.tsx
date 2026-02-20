@@ -35,11 +35,11 @@ type PageProps = {
 export default async function ContactPage({ searchParams }: PageProps) {
     const sp = (await searchParams) ?? {};
 
-    console.log("CONTACT PAGE searchParams:", sp);
-
     const reasonParam = sp.reason;
     const initialReason =
-        typeof reasonParam === "string" ? reasonParam : reasonParam?.[0] ?? "";
+        typeof reasonParam === "string"
+            ? reasonParam
+            : (reasonParam?.[0] ?? "");
 
     const allPlatforms: Platform[] = await getPlatforms();
     const platforms = allPlatforms.filter(
@@ -49,13 +49,15 @@ export default async function ContactPage({ searchParams }: PageProps) {
             p.name === "TikTok" ||
             p.name === "Location" ||
             p.name === "DoorDash" ||
-            p.name === "UberEats"
+            p.name === "UberEats" ||
+            p.name === "PikaPoint",
     );
 
     return (
         <main className="mx-auto w-full max-w-7xl bg-cream">
             <section className="mx-auto w-full px-4 md:px-6 lg:px-8 pb-10 pt-4 rounded-lg section-cream">
                 <SectionHeader
+                    className="max-w-4xl mx-auto"
                     title="CONTACT US"
                     subtitle="The VietBites team is here to help you with any questions or concerns!"
                 >

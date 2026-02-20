@@ -54,7 +54,7 @@ export default function SectionHeader({
                         "text-sm md:text-base text-charcoal/70",
                         // keep subtitle widths nice on wide layouts but not too narrow on mobile
                         align === "center"
-                            ? "max-w-full lg:max-w-1/2"
+                            ? "max-w-full lg:max-w-3/4"
                             : "max-w-full"
                     )}
                 >
