@@ -22,19 +22,28 @@ function getToday(hours: OpeningHour[]) {
         "friday",
         "saturday",
     ];
+    
     const todayName = dayNames[now.getDay()];
-
+    
     if (Array.isArray(hours)) {
-        return (
-            hours.find(
-                (h: OpeningHour) =>
-                    (h.day || "").toString().toLowerCase() === todayName,
-            ) || hours[now.getDay()]
+        const found = hours.find(
+            (h: OpeningHour) => (h.day || "").toString().toLowerCase() === todayName,
         );
+        if (found) return found;
+
+        // If the hours array is sorted Monday..Sunday (Sort: 1..7), map
+        // JS getDay() (0=Sun..6=Sat) to array index where Monday=0.
+        const idx = (now.getDay() + 6) % 7; // 0->6 (Sun->6), 1->0 (Mon->0)
+        return hours[idx];
     }
+
     if (hours && typeof hours === "object") {
-        return hours[todayName] ?? hours[now.getDay()];
+        const mapped = (hours as any)[todayName];
+        if (mapped) return mapped;
+        const idx = (now.getDay() + 6) % 7;
+        return (hours as any)[idx] ?? null;
     }
+
     return null;
 }
 function normalizeIntervals(
@@ -43,26 +52,20 @@ function normalizeIntervals(
     if (!today) return null;
 
     if (Array.isArray(today)) {
-        console.error(
-            "normalizeIntervals: expected a single OpeningHour object but received an array. Using the first element.",
-            today,
-        );
         today = today[0];
         if (!today) return null;
     }
 
-    let interval: { start?: string; end?: string } = {};
+    if (today.closed) return null;
+    
+    if (today.open && today.close) {
+        return {
+            start: today.open,
+            end: today.close,
+        };
+    }
 
-    if (today.open && today.close)
-        interval = { start: today.open, end: today.close };
-    else return null;
-
-    if (!interval.start || !interval.end) return null;
-
-    return {
-        start: interval.start,
-        end: interval.end,
-    };
+    return null;
 }
 
 function statusMessage(hours: OpeningHour[]) {
