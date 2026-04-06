@@ -43,26 +43,20 @@ function normalizeIntervals(
     if (!today) return null;
 
     if (Array.isArray(today)) {
-        console.error(
-            "normalizeIntervals: expected a single OpeningHour object but received an array. Using the first element.",
-            today,
-        );
         today = today[0];
         if (!today) return null;
     }
 
-    let interval: { start?: string; end?: string } = {};
+    if (today.closed) return null;
+    
+    if (today.open && today.close) {
+        return {
+            start: today.open,
+            end: today.close,
+        };
+    }
 
-    if (today.open && today.close)
-        interval = { start: today.open, end: today.close };
-    else return null;
-
-    if (!interval.start || !interval.end) return null;
-
-    return {
-        start: interval.start,
-        end: interval.end,
-    };
+    return null;
 }
 
 function statusMessage(hours: OpeningHour[]) {
