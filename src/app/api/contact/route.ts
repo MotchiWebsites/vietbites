@@ -29,10 +29,7 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 }
 
 function normalizeMessage(s: string) {
-    return s
-        .replace(/\r\n/g, "\n")
-        .replace(/^\s+/, "")
-        .trimEnd();
+    return s.replace(/\r\n/g, "\n").replace(/^\s+/, "").trimEnd();
 }
 
 function sanitizeMeta(meta: unknown): Record<string, string> | undefined {
@@ -97,7 +94,11 @@ function rateLimit(ip: string) {
 
     if (!entry || now > entry.resetAt) {
         ipHits.set(ip, { count: 1, resetAt: now + WINDOW_MS });
-        return { ok: true, remaining: MAX_REQUESTS - 1, resetAt: now + WINDOW_MS };
+        return {
+            ok: true,
+            remaining: MAX_REQUESTS - 1,
+            resetAt: now + WINDOW_MS,
+        };
     }
 
     if (entry.count >= MAX_REQUESTS) {
@@ -105,7 +106,11 @@ function rateLimit(ip: string) {
     }
 
     entry.count += 1;
-    return { ok: true, remaining: MAX_REQUESTS - entry.count, resetAt: entry.resetAt };
+    return {
+        ok: true,
+        remaining: MAX_REQUESTS - entry.count,
+        resetAt: entry.resetAt,
+    };
 }
 
 export async function POST(req: Request) {
@@ -116,7 +121,7 @@ export async function POST(req: Request) {
         if (!rl.ok) {
             const retryInSec = Math.max(
                 1,
-                Math.ceil((rl.resetAt - Date.now()) / 1000)
+                Math.ceil((rl.resetAt - Date.now()) / 1000),
             );
             const retryInMin = Math.ceil(retryInSec / 60);
 
@@ -126,7 +131,7 @@ export async function POST(req: Request) {
                     code: "RATE_LIMIT",
                     retryInSec,
                 },
-                { status: 429, headers: { "Retry-After": String(retryInSec) } }
+                { status: 429, headers: { "Retry-After": String(retryInSec) } },
             );
         }
 
@@ -146,30 +151,41 @@ export async function POST(req: Request) {
                         error: "Please take a moment to review your message and try again.",
                         code: "TOO_FAST",
                     },
-                    { status: 400 }
+                    { status: 400 },
                 );
             }
         }
 
-        const name = String(body.name ?? "").trim().slice(0, 120);
-        const email = String(body.email ?? "").trim().slice(0, 254);
+        const name = String(body.name ?? "")
+            .trim()
+            .slice(0, 120);
+        const email = String(body.email ?? "")
+            .trim()
+            .slice(0, 254);
         const message = normalizeMessage(body.message || "");
         const meta = sanitizeMeta(body.meta);
 
-        const subjectRaw = String(body.subject ?? "").replace(/\s+/g, " ").trim();
+        const subjectRaw = String(body.subject ?? "")
+            .replace(/\s+/g, " ")
+            .trim();
         const subjectCapped = subjectRaw.slice(0, SUBJECT_MAX);
-
 
         if (!name || !email || !subjectCapped || !message) {
             return NextResponse.json(
-                { error: "Please fill in all required fields.", code: "VALIDATION" },
-                { status: 400 }
+                {
+                    error: "Please fill in all required fields.",
+                    code: "VALIDATION",
+                },
+                { status: 400 },
             );
         }
         if (!isEmail(email)) {
             return NextResponse.json(
-                { error: "Please enter a valid email address.", code: "VALIDATION" },
-                { status: 400 }
+                {
+                    error: "Please enter a valid email address.",
+                    code: "VALIDATION",
+                },
+                { status: 400 },
             );
         }
         if (message.length > 5000) {
@@ -178,7 +194,7 @@ export async function POST(req: Request) {
                     error: "Your message is too long. Please keep it under 5,000 characters.",
                     code: "VALIDATION",
                 },
-                { status: 400 }
+                { status: 400 },
             );
         }
 
@@ -187,9 +203,11 @@ export async function POST(req: Request) {
         const fromName = process.env.BREVO_ADMIN_FROM_NAME || "VietBites";
         const confirmFromEmail = process.env.BREVO_CONFIRM_FROM_EMAIL;
         const confirmFromName =
-            process.env.BREVO_CONFIRM_FROM_NAME || "No Reply | VietBites Toronto";
+            process.env.BREVO_CONFIRM_FROM_NAME ||
+            "No Reply | VietBites Toronto";
         const toEmail = process.env.BREVO_TO_EMAIL;
-        const techCcEmail = process.env.BREVO_TECH_CC_EMAIL || "admin@motchi.ca";
+        const techCcEmail =
+            process.env.BREVO_TECH_CC_EMAIL || "admin@motchi.ca";
         const techCcName = "VietBites Tech Support";
 
         if (!apiKey || !fromEmail || !toEmail || !confirmFromEmail) {
@@ -198,7 +216,7 @@ export async function POST(req: Request) {
                     error: "Server email is not configured yet. Please try again later.",
                     code: "SERVER_CONFIG",
                 },
-                { status: 500 }
+                { status: 500 },
             );
         }
 
@@ -208,9 +226,9 @@ export async function POST(req: Request) {
         const categoryTitle = categoryRaw ? toTitleCase(categoryRaw) : "";
         const subjectNormalized = categoryTitle
             ? subjectCapped.replace(
-                /\[Category:\s*([^\]]+)\]/i,
-                `[Category: ${categoryTitle}]`
-            )
+                  /\[Category:\s*([^\]]+)\]/i,
+                  `[Category: ${categoryTitle}]`,
+              )
             : subjectCapped;
 
         const adminHtml = buildAdminEmailHtml({
@@ -238,7 +256,9 @@ export async function POST(req: Request) {
         const adminPayload: BrevoEmailPayload = {
             sender: { email: fromEmail, name: fromName },
             to: [{ email: toEmail, name: "VietBites" }],
-            ...(isTech ? { cc: [{ email: techCcEmail, name: techCcName }] } : {}),
+            ...(isTech
+                ? { cc: [{ email: techCcEmail, name: techCcName }] }
+                : {}),
             replyTo: { email, name },
             subject: subjectNormalized,
             htmlContent: adminHtml,
@@ -251,10 +271,10 @@ export async function POST(req: Request) {
             if (sentAdmin.status === 429) {
                 return NextResponse.json(
                     {
-                        error: "We’re receiving a high volume of messages right now. Please try again shortly.",
+                        error: "We're receiving a high volume of messages right now. Please try again shortly.",
                         code: "EMAIL_RATE_LIMIT",
                     },
-                    { status: 429 }
+                    { status: 429 },
                 );
             }
 
@@ -263,7 +283,7 @@ export async function POST(req: Request) {
                     error: "We could not send your message right now. Please try again in a minute.",
                     code: "BREVO_FAIL",
                 },
-                { status: 502 }
+                { status: 502 },
             );
         }
 
@@ -291,8 +311,11 @@ export async function POST(req: Request) {
     } catch (err) {
         console.error(err);
         return NextResponse.json(
-            { error: "Something went wrong. Please try again.", code: "UNKNOWN" },
-            { status: 500 }
+            {
+                error: "Something went wrong. Please try again.",
+                code: "UNKNOWN",
+            },
+            { status: 500 },
         );
     }
 }

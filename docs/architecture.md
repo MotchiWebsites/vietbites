@@ -53,7 +53,7 @@ The contact page serves **multiple purposes**:
     -   Form heading text
     -   Required fields
     -   Which metadata is sent to email
--   The URL paramters accepted are only the ones from the partnership page (not all the possible options are allowed as URL parameters)
+-   The URL paramters accepted are only the ones from the catering page (not all the possible options are allowed as URL parameters)
 
 ### Wholesale-Specific Fields
 

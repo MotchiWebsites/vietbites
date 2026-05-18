@@ -29,13 +29,13 @@ export default async function Footer() {
                             href="/contact"
                             className="inline-flex items-center justify-center rounded-lg bg-orange text-clean px-3 py-2 text-sm font-semibold shadow transition ease-in-out duration-300 hover:bg-orange-hover active:bg-orange-active active:scale-[.98] w-full sm:w-auto"
                         >
-                            Contact Us
+                            Order Online
                         </Link>
                         <Link
                             href="/menu"
                             className="inline-flex items-center justify-center button-outline py-2 px-3 text-sm font-heading font-medium rounded-lg w-full sm:w-auto"
                         >
-                            View menu
+                            Contact Us
                         </Link>
                     </div>
                 </div>
