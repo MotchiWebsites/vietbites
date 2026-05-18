@@ -83,13 +83,13 @@ export default function ContactForm({
                 desc: "If none of the categories fit, choose this and describe what you need.",
             },
         ],
-        []
+        [],
     );
 
     // Reason
     const allowedReasons = useMemo(
         () => new Set(reasonOptions.map((o) => o.value)),
-        [reasonOptions]
+        [reasonOptions],
     );
 
     const [reason, setReason] = useState(() => {
@@ -139,7 +139,7 @@ export default function ContactForm({
                 return {
                     title: "Wholesale Application",
                     subtitle:
-                        "Tell us about your business and what you’re looking for.",
+                        "Tell us about your business and what you're looking for.",
                 };
             case "catering":
                 return {
@@ -162,7 +162,7 @@ export default function ContactForm({
                 return {
                     title: "Contact VietBites",
                     subtitle:
-                        "Send us a message and we’ll get back to you soon.",
+                        "Send us a message and we'll get back to you soon.",
                 };
         }
     }, [normalizedReason]);
@@ -171,7 +171,7 @@ export default function ContactForm({
         catering:
             "Share the date/time, guest count, location, dietary needs, and budget range to help us quote fast.",
         wholesale:
-            "Let us know about your business, who your customers are, and what products you’re interested in.",
+            "Let us know about your business, who your customers are, and what products you're interested in.",
         "general inquiry":
             "Feel free to ask about our menu, pricing, store hours, or any other questions you have.",
         "feedback & complaints":
@@ -179,7 +179,7 @@ export default function ContactForm({
         collaborations:
             "Tell us your idea, timeline, and what success looks like (pop-up, limited item, event, etc.).",
         "custom orders":
-            "Let us know what you need, your timeline, and any special requests. We’ll see what we can do!",
+            "Let us know what you need, your timeline, and any special requests. We'll see what we can do!",
         "technical issues":
             "Tell us what page (e.g., menu), what you expected vs. what happened.",
         other: "Provide as much detail about your inquiry as possible.",
@@ -338,7 +338,10 @@ export default function ContactForm({
                                 label={opt.label}
                                 desc={opt.desc}
                             />
-                            <hr id="reason-divider" className="my-2 hidden md:block" />
+                            <hr
+                                id="reason-divider"
+                                className="my-2 hidden md:block"
+                            />
                         </div>
                     ))}
                 </SelectBox>

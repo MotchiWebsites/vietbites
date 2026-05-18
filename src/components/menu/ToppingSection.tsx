@@ -40,8 +40,8 @@ export default function ToppingsSection({
         nameClamp === 1
             ? "line-clamp-1"
             : nameClamp === 2
-            ? "line-clamp-2"
-            : "line-clamp-3";
+              ? "line-clamp-2"
+              : "line-clamp-3";
 
     return (
         <FrameSection title={title} frameClass={frameClass}>
@@ -81,7 +81,7 @@ export default function ToppingsSection({
                                         <Price value={it.price} />
                                     </span>
                                 ) : (
-                                    // Reserve the space at ≥sm so columns stay aligned; on mobile we don’t need it
+                                    // Reserve the space at ≥sm so columns stay aligned; on mobile we don't need it
                                     <span className="hidden sm:block opacity-0 select-none">
                                         0
                                     </span>

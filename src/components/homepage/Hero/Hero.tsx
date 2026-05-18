@@ -13,14 +13,14 @@ export default async function Hero({
         <section
             id="hero"
             className="frame-clipped overflow-hidden rounded-2xl bg-cream px-8 py-16 
-             md:px-16 md:py-24 lg:py-32 min-h-150 md:min-h-175 lg:min-h-200"
+             md:px-16 md:py-24 lg:pt-14 lg:pb-32 min-h-150 md:min-h-175 lg:min-h-200"
         >
             {/* Floating product images */}
             <div
                 aria-hidden
                 className="pointer-events-none absolute inset-0 z-0"
             >
-                <div className="hidden lg:block absolute floatLeft opacity-95 floatAnim1">
+                <div className="hidden md:block absolute floatLeft opacity-95 floatAnim1">
                     <Image
                         src="/images/food/icon1.png"
                         alt="Food Icons - Rice Paper Salad"
@@ -77,7 +77,12 @@ export default async function Hero({
                         Crafted with care, meant to be savored.
                     </p>
 
-                    <div className="mt-8 w-3/4 mx-auto sm:w-full flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
+                    {/* Today's hours */}
+                    <div className="mt-4 text-sm text-charcoal/80">
+                        <OpenToday hours={hours} />
+                    </div>
+
+                    <div className="mt-4 w-3/4 mx-auto sm:w-full flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
                         <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
                             <Link
                                 href="/menu"
@@ -107,11 +112,6 @@ export default async function Hero({
                                 Visit Us
                             </Link>
                         </div>
-                    </div>
-
-                    {/* Today’s hours */}
-                    <div className="mt-6 text-sm text-charcoal/80">
-                        <OpenToday hours={hours} />
                     </div>
                 </div>
 

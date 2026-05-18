@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-type PartnershipBlockProps = {
+type CateringBlockProps = {
     eyebrow: string;
     title: string;
     body: string[];
@@ -14,7 +14,7 @@ type PartnershipBlockProps = {
     containBgClassName?: string; // optional background when using contain
 };
 
-export default function PartnershipBlock({
+export default function CateringBlock({
     eyebrow,
     title,
     body,
@@ -25,12 +25,12 @@ export default function PartnershipBlock({
     imagePlacement = "center",
     imageFit = "cover",
     containBgClassName = "bg-clean",
-}: PartnershipBlockProps) {
+}: CateringBlockProps) {
     const isContain = imageFit === "contain";
 
     return (
         <section
-            id="partnership"
+            id="catering"
             className="grid gap-6 lg:grid-cols-[40%_60%] lg:px-12 items-stretch"
         >
             {/* Image */}
