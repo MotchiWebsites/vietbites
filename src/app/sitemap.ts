@@ -26,22 +26,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
             priority: 0.7,
         },
         {
-            url: `${baseUrl}/location`,
+            url: `${baseUrl}/visit`,
             lastModified: new Date(),
             changeFrequency: "monthly",
-            priority: 0.7,
+            priority: 0.9,
         },
         {
-            url: `${baseUrl}/partnership`,
+            url: `${baseUrl}/catering`,
             lastModified: new Date(),
             changeFrequency: "yearly",
             priority: 0.5,
         },
-        {
-            url: `${baseUrl}/contact`,
-            lastModified: new Date(),
-            changeFrequency: "yearly",
-            priority: 0.5,
-        },
+        // contact merged into /visit
     ];
 }

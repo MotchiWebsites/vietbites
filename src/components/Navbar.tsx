@@ -7,11 +7,10 @@ import { Twirl as Hamburger } from "hamburger-react";
 import { usePathname } from "next/navigation";
 
 const navLinks = [
-    { href: "/", label: "Home" },
     { href: "/story", label: "Our Story" },
+    { href: "/visit", label: "Visit Us" },
     { href: "/menu", label: "Menu" },
-    { href: "/location", label: "Location/Hours" },
-    { href: "/partnership", label: "Partnerships" },
+    { href: "/catering", label: "Catering" },
 ];
 
 export default function Navbar() {
@@ -19,7 +18,7 @@ export default function Navbar() {
     const pathname = usePathname();
 
     return (
-        <header className="sticky top-0 z-50 bg-clean/95 backdrop-blur supports-backdrop-filter:bg-clean/80 border-b border-charcoal/10 shadow-sm">
+        <header className="sticky top-0 z-90 bg-clean/95 backdrop-blur supports-backdrop-filter:bg-clean/80 border-b border-charcoal/10 shadow-sm">
             <div className="h-1 bg-orange/80"></div>
 
             <nav className="mx-auto max-w-360 px-4 py-3 flex items-center justify-between">
@@ -59,12 +58,13 @@ export default function Navbar() {
                         );
                     })}
                     <li>
-                        <Link
-                            href="/contact"
+                        <a
+                            href="https://vietbites.pikapoint.io/"
+                            target="_blank"
                             className="inline-flex items-center rounded-full bg-orange text-clean px-4 py-2 text-sm font-semibold shadow transition duration-200 hover:bg-orange-hover active:bg-orange-active active:scale-[.98]"
                         >
-                            Contact Us
-                        </Link>
+                            Order Online
+                        </a>
                     </li>
                 </ul>
 
@@ -86,16 +86,7 @@ export default function Navbar() {
                     open ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
                 }`}
             >
-                <div className="mx-3 my-3 rounded-xl border border-charcoal/10 bg-clean shadow-sm">
-                    <div className="px-4 py-3 border-b border-charcoal/10">
-                        <p
-                            className="text-base font-semibold text-orange"
-                            style={{ fontFamily: "var(--font-heading)" }}
-                        >
-                            Explore VietBites
-                        </p>
-                    </div>
-
+                <div className="mx-3 my-3 rounded-xl bg-clean shadow-sm">
                     <ul
                         className="px-2 py-2"
                         style={{ fontFamily: "var(--font-heading)" }}
@@ -137,13 +128,14 @@ export default function Navbar() {
                         })}
 
                         <li className="pt-1">
-                            <Link
-                                href="/contact"
-                                onClick={() => setOpen(false)}
+                            <a
+                                href="https://vietbites.pikapoint.io/"
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 className="block max-w-sm mx-auto text-center rounded-full bg-orange text-clean px-4 py-2 font-semibold shadow hover:bg-clay transition-colors active:scale-[.98]"
                             >
-                                Contact Us
-                            </Link>
+                                Order Online
+                            </a>
                         </li>
                     </ul>
                 </div>

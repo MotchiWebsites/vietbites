@@ -3,7 +3,10 @@ import { FiAlertCircle } from "react-icons/fi";
 
 export default function NotFound() {
     return (
-        <main id="not-found" className="min-h-[70vh] flex items-center justify-center bg-cream px-4">
+        <main
+            id="not-found"
+            className="min-h-[70vh] flex items-center justify-center bg-cream px-4"
+        >
             <div className="max-w-md w-full text-center rounded-2xl bg-white border border-charcoal/10 shadow-sm p-8">
                 <div className="flex justify-center mb-4">
                     <FiAlertCircle
@@ -17,7 +20,7 @@ export default function NotFound() {
                 </h1>
 
                 <p className="mt-3 text-sm text-charcoal/70">
-                    Sorry, the page you’re looking for doesn’t exist or may have
+                    Sorry, the page you&apos;re looking for doesn&apos;t exist or may have
                     been moved.
                 </p>
 
@@ -31,11 +34,15 @@ export default function NotFound() {
                 </div>
 
                 <p className="mt-4 text-xs text-charcoal/50">
-                    If you believe this is a mistake, please{" "} 
-                    <Link href="/contact?reason=technical issues" className="inline-block text-orange relative group">
+                    If you believe this is a mistake, please{" "}
+                    <Link
+                        href="/visit?reason=technical%20issues"
+                        className="inline-block text-orange relative group"
+                    >
                         <span className="relative z-10">contact us</span>
                         <span className="absolute left-0 -bottom-0.5 h-0.5 w-full bg-orange origin-left scale-x-0 transition-transform duration-300 ease-in-out group-hover:scale-x-100" />
-                    </Link>.
+                    </Link>
+                    .
                 </p>
             </div>
         </main>

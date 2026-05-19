@@ -11,7 +11,7 @@ function capitalize(s: string) {
 }
 
 function normalizeHours(
-    hours: OpeningHour[]
+    hours: OpeningHour[],
 ): Array<{ day: string; open?: string; close?: string; closed?: boolean }> {
     const order = [
         "Monday",
@@ -58,7 +58,7 @@ export default async function HoursTable({ hours }: { hours: OpeningHour[] }) {
             p.name === "Email" ||
             p.name === "DoorDash" ||
             p.name === "UberEats" ||
-            p.name === "PikaPoint"
+            p.name === "PikaPoint",
     );
 
     return (
@@ -66,28 +66,23 @@ export default async function HoursTable({ hours }: { hours: OpeningHour[] }) {
             aria-label="Business hours"
             className="max-w-lg mx-auto rounded-2xl"
         >
-            <p className="px-5 sm:px-6 py-4 xl:py-8 text-center text-xs text-charcoal/60">
+            <p className="px-5 sm:px-6 py-4 xl:py-8 text-center text-xs xl:text-sm text-charcoal/60">
                 Holiday hours may vary. Please check our socials below for
                 updates.
             </p>
-            <ul role="list" className="divide-y divide-transparent">
+            <ul role="list" className="divide-y divide-transparent pt-5">
                 {rows.map((r, idx) => {
                     const isClosed = r.closed || (!r.open && !r.close);
 
                     return (
                         <li key={`${r.day}-${idx}`}>
-                            {idx !== 0 && (
-                                <div className="py-4">
-                                    <hr className="w-full" />
-                                </div>
-                            )}
+                            {idx !== 0 && <hr className="w-full" />}
 
                             <div className="px-5 sm:px-6 py-3.5 grid grid-cols-[1fr_auto] items-center gap-3">
                                 <span
                                     className={clsx(
-                                        "font-heading font-extrabold tracking-tight",
-                                        "text-[color-mix(in_oklab,var(--green)_85%,black_0%)]",
-                                        "text-base sm:text-lg"
+                                        "font-heading font-extrabold tracking-tight text-green",
+                                        "text-base sm:text-lg",
                                     )}
                                 >
                                     {r.day}

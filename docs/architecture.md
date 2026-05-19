@@ -48,12 +48,12 @@ The contact page serves **multiple purposes**:
 ### Reason Selection
 
 -   The **Reason field always exists**
--   URL parameters (`/contact?reason=wholesale`) pre-select the reason
+-   URL parameters (`/visit?reason=wholesale`) pre-select the reason
 -   The reason controls:
     -   Form heading text
     -   Required fields
     -   Which metadata is sent to email
--   The URL paramters accepted are only the ones from the partnership page (not all the possible options are allowed as URL parameters)
+-   The URL paramters accepted are only the ones from the catering page (not all the possible options are allowed as URL parameters)
 
 ### Wholesale-Specific Fields
 
@@ -96,6 +96,7 @@ The contact form includes:
 -   Rate limiting (in-memory)
 -   Subject & message length caps
 -   Email validation
+-   reCAPTCHA (Google)
 
 These are intentional and should not be removed lightly.
 

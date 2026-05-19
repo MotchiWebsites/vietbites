@@ -20,8 +20,9 @@ export default function Intro({ className = "" }: { className?: string }) {
                     Need a hand?
                 </h2>
                 <p className="mt-2 text-xs sm:text-sm md:text-base text-charcoal/80 leading-relaxed">
-                    Whether it&apos;s a question, request, or bit of feedback, we&apos;re
-                    happy to hear from you! You&apos;ll usually get a response within{" "}
+                    Whether it&apos;s a question, request, or bit of feedback,
+                    we&apos;re happy to hear from you! You&apos;ll usually get a
+                    response within{" "}
                     <span className="font-semibold text-charcoal">
                         3-5 business days
                     </span>
@@ -85,9 +86,9 @@ export default function Intro({ className = "" }: { className?: string }) {
                     <li>Relevant order or event details.</li>
                 </ul>
                 <p className="mt-3 text-xs text-charcoal/60">
-                    Curious about when we’re open?{" "}
+                    Curious about when we&apos;re open?{" "}
                     <Link
-                        href="/location"
+                        href="/visit"
                         aria-label="Check our business hours"
                         className="font-semibold text-orange underline underline-offset-2 hover:text-orange-hover transition-all"
                     >

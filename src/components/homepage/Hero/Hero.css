@@ -33,15 +33,15 @@
 /* Responsive: bring images closer and scale down on large/medium */
 @media (max-width: 1280px) {
     .floatLeft {
-        left: 8%;
+        left: 6%;
         bottom: clamp(0.5rem, 2vw, 1rem);
     }
     .floatCenter {
-        left: 45%;
+        left: 40%;
         bottom: clamp(1.75rem, 4.5vw, 1rem);
     }
     .floatRight {
-        right: 8%;
+        left: 70%;
         bottom: clamp(0.5rem, 2vw, 1rem);
     }
 }
@@ -51,11 +51,11 @@
         bottom: clamp(0.5rem, 3vw, 0.75rem);
     }
     .floatCenter {
-        left: 46%;
+        left: 40%;
         bottom: clamp(1.5rem, 4vw, 0.75rem);
     }
     .floatRight {
-        right: 6%;
+        left: 70%;
         bottom: clamp(0.5rem, 3vw, 0.75rem);
     }
 }

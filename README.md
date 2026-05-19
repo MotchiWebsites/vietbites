@@ -2,7 +2,7 @@
 
 Production website for VietBites Toronto, built with **Next.js (App Router)** and integrated with **Notion CMS** and **Brevo email services**.
 
-This repository contains the public-facing website, including the menu, partnerships pages, and a dynamic contact / wholesale application form.
+This repository contains the public-facing website, including the menu, catering pages, and a dynamic contact & wholesale application form available on the /visit page.
 
 ---
 
@@ -50,12 +50,12 @@ http://localhost:300
 ## Project Structure (High-Level)
 ```
 /app
-  /contact
+  /visit
   /menu
-  /partnerships
+  /catering
 
 /components
-  /contact
+  /visit
   /menu
   /common
 
@@ -65,7 +65,7 @@ http://localhost:300
 ```
 
 - `/lib/notion`→ All Notion database access and normalization
-- `/components/contact` → Contact + Wholesale form logic
+- `/components/visit/contact` → Contact + Wholesale form logic
 - `/lib/email` → Brevo email payloads and templates
 
 ---
