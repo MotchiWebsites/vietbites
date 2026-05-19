@@ -80,7 +80,7 @@ export default async function Footer() {
                         className="underline hover:text-orange ease-in-out duration-300 transition-colors"
                         target="_blank"
                     >
-                        Mitchi Motcho Websites
+                        Motchi Websites
                     </a>
                     . All rights reserved.
                 </p>
