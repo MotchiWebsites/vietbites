@@ -18,6 +18,8 @@ type ContactPayload = {
     meta?: Record<string, string>;
     company?: string;
     startedAt?: number;
+    recaptchaToken?: string;
+    recaptchaVersion?: "v3" | "v2";
 };
 
 function isEmail(s: string) {
@@ -77,10 +79,15 @@ function extractCategory(subject: string) {
 // Subject max length
 const SUBJECT_MAX = 160;
 
-// --- in-memory rate limiter (OK for single instance; if you scale horizontally, move to KV/Redis) ---
-const WINDOW_MS = 10 * 60 * 1000;
-const MAX_REQUESTS = 5;
-const ipHits = new Map<string, { count: number; resetAt: number }>();
+// Rate limit adapter (memory default with production swappable implementation)
+import {
+    consumeIp,
+    consumeEmail,
+    consumeBurst,
+    isDuplicate,
+    setDuplicate,
+    hasQuotaError,
+} from "@/lib/rate-limit";
 
 function getClientIp(req: Request) {
     const xff = req.headers.get("x-forwarded-for");
@@ -88,51 +95,65 @@ function getClientIp(req: Request) {
     return "unknown";
 }
 
-function rateLimit(ip: string) {
-    const now = Date.now();
-    const entry = ipHits.get(ip);
+// rateLimit and rateLimitEmail removed; use adapter functions from src/lib/rate-limit.ts
 
-    if (!entry || now > entry.resetAt) {
-        ipHits.set(ip, { count: 1, resetAt: now + WINDOW_MS });
-        return {
-            ok: true,
-            remaining: MAX_REQUESTS - 1,
-            resetAt: now + WINDOW_MS,
-        };
-    }
+function isLikelySpamContent(message: string) {
+    // simple heuristics: too many urls or excessive short repetitive content
+    const urlMatches = message.match(/https?:\/\/[\S]+/gi) || [];
+    if (urlMatches.length > 3) return true;
 
-    if (entry.count >= MAX_REQUESTS) {
-        return { ok: false, remaining: 0, resetAt: entry.resetAt };
-    }
+    // a short message with many non-alphanumeric chars
+    const nonAlpha = (message.match(/[^\w\s\.,!?:;\-()]/g) || []).length;
+    if (message.length < 50 && nonAlpha > 10) return true;
 
-    entry.count += 1;
-    return {
-        ok: true,
-        remaining: MAX_REQUESTS - entry.count,
-        resetAt: entry.resetAt,
-    };
+    return false;
 }
 
 export async function POST(req: Request) {
     try {
         const ip = getClientIp(req);
 
-        const rl = rateLimit(ip);
+        const rl = await consumeIp(ip);
         if (!rl.ok) {
             const retryInSec = Math.max(
                 1,
                 Math.ceil((rl.resetAt - Date.now()) / 1000),
             );
             const retryInMin = Math.ceil(retryInSec / 60);
-
             return NextResponse.json(
                 {
+                    ok: false,
                     error: `Too many messages sent from this network. Please try again in about ${retryInMin} minutes.`,
-                    code: "RATE_LIMIT",
+                    code: "RATE_LIMIT_IP",
                     retryInSec,
                 },
                 { status: 429, headers: { "Retry-After": String(retryInSec) } },
             );
+        }
+
+        // Burst protection (short window)
+        try {
+            const burst = await consumeBurst(ip, 30 * 1000, 2);
+            if (!burst.ok) {
+                const retryInSec = Math.max(
+                    1,
+                    Math.ceil((burst.resetAt - Date.now()) / 1000),
+                );
+                return NextResponse.json(
+                    {
+                        ok: false,
+                        error: "Too many requests. Please wait a moment.",
+                        code: "RATE_LIMIT_BURST",
+                        retryInSec,
+                    },
+                    {
+                        status: 429,
+                        headers: { "Retry-After": String(retryInSec) },
+                    },
+                );
+            }
+        } catch (err) {
+            console.warn("burst check failed, allowing request", err);
         }
 
         const body = (await req.json()) as ContactPayload;
@@ -148,6 +169,7 @@ export async function POST(req: Request) {
             if (elapsed < 2000) {
                 return NextResponse.json(
                     {
+                        ok: false,
                         error: "Please take a moment to review your message and try again.",
                         code: "TOO_FAST",
                     },
@@ -164,15 +186,289 @@ export async function POST(req: Request) {
             .slice(0, 254);
         const message = normalizeMessage(body.message || "");
         const meta = sanitizeMeta(body.meta);
-
         const subjectRaw = String(body.subject ?? "")
             .replace(/\s+/g, " ")
             .trim();
         const subjectCapped = subjectRaw.slice(0, SUBJECT_MAX);
 
+        // Server-side reCAPTCHA verification.
+        const recaptchaSecretV3 = process.env.RECAPTCHA_SECRET_KEY;
+        const recaptchaSecretV2 = process.env.RECAPTCHA_V2_SECRET_KEY;
+        const token = String(body.recaptchaToken ?? "");
+        const declaredVersion = body.recaptchaVersion;
+
+        if (recaptchaSecretV3 || recaptchaSecretV2) {
+            if (!token) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+                        error: "Missing captcha token.",
+                        code: "RECAPTCHA_MISSING",
+                    },
+                    { status: 400 },
+                );
+            }
+
+            // helper to verify with a secret
+            async function verifyToken(secret: string, tokenToVerify: string) {
+                const form = new URLSearchParams();
+                form.set("secret", secret);
+                form.set("response", tokenToVerify);
+                form.set("remoteip", ip);
+
+                const r = await fetch(
+                    "https://www.google.com/recaptcha/api/siteverify",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded",
+                        },
+                        body: form.toString(),
+                    },
+                );
+
+                return r.json();
+            }
+
+            try {
+                // If client declared a version, enforce that verification strictly
+                if (declaredVersion === "v3") {
+                    if (!recaptchaSecretV3) {
+                        return NextResponse.json(
+                            {
+                                ok: false,
+                                error: "reCAPTCHA v3 not configured on server.",
+                                code: "RECAPTCHA_VERSION_MISMATCH",
+                            },
+                            { status: 400 },
+                        );
+                    }
+                    const jr = await verifyToken(recaptchaSecretV3, token);
+                    const success = Boolean(jr.success);
+                    const score =
+                        typeof jr.score === "number" ? jr.score : undefined;
+                    const action =
+                        typeof jr.action === "string" ? jr.action : undefined;
+                    const errs: string[] = Array.isArray(jr["error-codes"])
+                        ? jr["error-codes"]
+                        : [];
+                    const isQuota = hasQuotaError(errs);
+
+                    if (!success) {
+                        if (isQuota) {
+                            console.warn(
+                                "reCAPTCHA v3 quota exceeded — failing open",
+                                jr,
+                            );
+                            // fail-open for v3 (low-risk contact form)
+                        } else {
+                            console.warn("reCAPTCHA v3 failed", jr);
+                            return NextResponse.json(
+                                {
+                                    ok: false,
+                                    error: "Captcha verification failed.",
+                                    code: "RECAPTCHA_FAIL",
+                                },
+                                { status: 400 },
+                            );
+                        }
+                    }
+                    if (typeof score === "number" && score < 0.4) {
+                        console.warn("reCAPTCHA v3 low score", score, jr);
+                        return NextResponse.json(
+                            {
+                                ok: false,
+                                error: "Captcha verification flagged this request as suspicious.",
+                                code: "RECAPTCHA_LOW_SCORE",
+                            },
+                            { status: 400 },
+                        );
+                    }
+                    if (action && action !== "contact_form") {
+                        console.warn(
+                            "reCAPTCHA v3 action mismatch",
+                            action,
+                            jr,
+                        );
+                        return NextResponse.json(
+                            {
+                                ok: false,
+                                error: "Captcha verification mismatch.",
+                                code: "RECAPTCHA_ACTION",
+                            },
+                            { status: 400 },
+                        );
+                    }
+                } else if (declaredVersion === "v2") {
+                    if (!recaptchaSecretV2) {
+                        return NextResponse.json(
+                            {
+                                ok: false,
+                                error: "reCAPTCHA v2 not configured on server.",
+                                code: "RECAPTCHA_VERSION_MISMATCH",
+                            },
+                            { status: 400 },
+                        );
+                    }
+                    const jr2 = await verifyToken(recaptchaSecretV2, token);
+                    const success2 = Boolean(jr2.success);
+                    const errs2: string[] = Array.isArray(jr2["error-codes"])
+                        ? jr2["error-codes"]
+                        : [];
+                    const isQuota2 = hasQuotaError(errs2);
+                    if (!success2) {
+                        if (isQuota2) {
+                            console.warn("reCAPTCHA v2 quota exceeded", jr2);
+                            return NextResponse.json(
+                                {
+                                    ok: false,
+                                    error: "Captcha quota exceeded. Please try again later.",
+                                    code: "RECAPTCHA_QUOTA_EXCEEDED",
+                                },
+                                { status: 503 },
+                            );
+                        }
+                        console.warn("reCAPTCHA v2 failed", jr2);
+                        return NextResponse.json(
+                            {
+                                ok: false,
+                                error: "Captcha verification failed.",
+                                code: "RECAPTCHA_FAIL",
+                            },
+                            { status: 400 },
+                        );
+                    }
+                } else {
+                    // No declared version from client: keep previous behavior (try v3 then v2)
+                    let verified = false;
+                    if (recaptchaSecretV3) {
+                        const jr = await verifyToken(recaptchaSecretV3, token);
+                        const success = Boolean(jr.success);
+                        const score =
+                            typeof jr.score === "number" ? jr.score : undefined;
+                        const action =
+                            typeof jr.action === "string"
+                                ? jr.action
+                                : undefined;
+                        const errs: string[] = Array.isArray(jr["error-codes"])
+                            ? jr["error-codes"]
+                            : [];
+                        const isQuota = hasQuotaError(errs);
+
+                        if (
+                            success &&
+                            (typeof score !== "number" || score >= 0.4) &&
+                            (!action || action === "contact_form")
+                        ) {
+                            verified = true;
+                        } else {
+                            if (!recaptchaSecretV2) {
+                                if (!success) {
+                                    if (isQuota) {
+                                        console.warn(
+                                            "reCAPTCHA v3 quota exceeded — failing open",
+                                            jr,
+                                        );
+                                        // fail-open for v3
+                                    } else {
+                                        console.warn("reCAPTCHA v3 failed", jr);
+                                        return NextResponse.json(
+                                            {
+                                                ok: false,
+                                                error: "Captcha verification failed.",
+                                                code: "RECAPTCHA_FAIL",
+                                            },
+                                            { status: 400 },
+                                        );
+                                    }
+                                }
+                                if (typeof score === "number" && score < 0.4) {
+                                    console.warn(
+                                        "reCAPTCHA v3 low score",
+                                        score,
+                                        jr,
+                                    );
+                                    return NextResponse.json(
+                                        {
+                                            ok: false,
+                                            error: "Captcha verification flagged this request as suspicious.",
+                                            code: "RECAPTCHA_LOW_SCORE",
+                                        },
+                                        { status: 400 },
+                                    );
+                                }
+                                if (action && action !== "contact_form") {
+                                    console.warn(
+                                        "reCAPTCHA v3 action mismatch",
+                                        action,
+                                        jr,
+                                    );
+                                    return NextResponse.json(
+                                        {
+                                            ok: false,
+                                            error: "Captcha verification mismatch.",
+                                            code: "RECAPTCHA_ACTION",
+                                        },
+                                        { status: 400 },
+                                    );
+                                }
+                            }
+                        }
+                    }
+                    if (!verified && recaptchaSecretV2) {
+                        const jr2 = await verifyToken(recaptchaSecretV2, token);
+                        const success2 = Boolean(jr2.success);
+                        const errs2: string[] = Array.isArray(
+                            jr2["error-codes"],
+                        )
+                            ? jr2["error-codes"]
+                            : [];
+                        const isQuota2 = hasQuotaError(errs2);
+                        if (success2) verified = true;
+                        else {
+                            if (isQuota2) {
+                                console.warn(
+                                    "reCAPTCHA v2 quota exceeded",
+                                    jr2,
+                                );
+                                return NextResponse.json(
+                                    {
+                                        ok: false,
+                                        error: "Captcha quota exceeded. Please try again later.",
+                                        code: "RECAPTCHA_QUOTA_EXCEEDED",
+                                    },
+                                    { status: 503 },
+                                );
+                            }
+                            console.warn("reCAPTCHA v2 failed", jr2);
+                            return NextResponse.json(
+                                {
+                                    ok: false,
+                                    error: "Captcha verification failed.",
+                                    code: "RECAPTCHA_FAIL",
+                                },
+                                { status: 400 },
+                            );
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error("reCAPTCHA verification error", err);
+                return NextResponse.json(
+                    {
+                        ok: false,
+                        error: "Captcha verification error.",
+                        code: "RECAPTCHA_ERROR",
+                    },
+                    { status: 500 },
+                );
+            }
+        }
+
         if (!name || !email || !subjectCapped || !message) {
             return NextResponse.json(
                 {
+                    ok: false,
                     error: "Please fill in all required fields.",
                     code: "VALIDATION",
                 },
@@ -182,6 +478,7 @@ export async function POST(req: Request) {
         if (!isEmail(email)) {
             return NextResponse.json(
                 {
+                    ok: false,
                     error: "Please enter a valid email address.",
                     code: "VALIDATION",
                 },
@@ -191,11 +488,74 @@ export async function POST(req: Request) {
         if (message.length > 5000) {
             return NextResponse.json(
                 {
+                    ok: false,
                     error: "Your message is too long. Please keep it under 5,000 characters.",
                     code: "VALIDATION",
                 },
                 { status: 400 },
             );
+        }
+
+        // Content heuristics
+        if (isLikelySpamContent(message)) {
+            return NextResponse.json(
+                {
+                    ok: false,
+                    error: "Your message looks like spam.",
+                    code: "SPAM_SUSPECT",
+                },
+                { status: 400 },
+            );
+        }
+
+        // Per-email rate limit
+        const erl = await consumeEmail(email.toLowerCase());
+        if (!erl.ok) {
+            const retryInSec = Math.max(
+                1,
+                Math.ceil((erl.resetAt - Date.now()) / 1000),
+            );
+            return NextResponse.json(
+                {
+                    ok: false,
+                    error: `Too many messages from this email address. Try again in ${Math.ceil(retryInSec / 60)} minutes.`,
+                    code: "RATE_LIMIT_EMAIL",
+                    retryInSec,
+                },
+                { status: 429, headers: { "Retry-After": String(retryInSec) } },
+            );
+        }
+
+        // Duplicate message detection. Uses durable store in production via adapter.
+        const dedupeWindow = 10 * 60 * 1000; // 10 minutes
+        let dedupeHash: string | null = null;
+
+        try {
+            dedupeHash = crypto
+                .createHash("sha256")
+                .update(
+                    email.toLowerCase() +
+                        "|" +
+                        subjectCapped +
+                        "|" +
+                        message.slice(0, 1000),
+                )
+                .digest("hex");
+
+            const dup = await isDuplicate(dedupeHash);
+
+            if (dup) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+                        error: "Duplicate message detected.",
+                        code: "DUPLICATE",
+                    },
+                    { status: 409 },
+                );
+            }
+        } catch (err) {
+            console.warn("dedupe check failed", err);
         }
 
         const apiKey = process.env.BREVO_API_KEY;
@@ -213,6 +573,7 @@ export async function POST(req: Request) {
         if (!apiKey || !fromEmail || !toEmail || !confirmFromEmail) {
             return NextResponse.json(
                 {
+                    ok: false,
                     error: "Server email is not configured yet. Please try again later.",
                     code: "SERVER_CONFIG",
                 },
@@ -265,26 +626,53 @@ export async function POST(req: Request) {
             textContent: adminText,
         };
 
-        const sentAdmin = await sendBrevoEmail(apiKey, adminPayload);
-        if (!sentAdmin.ok) {
-            // Make sure your sendBrevoEmail returns status; if not, update it (snippet below)
-            if (sentAdmin.status === 429) {
-                return NextResponse.json(
-                    {
-                        error: "We're receiving a high volume of messages right now. Please try again shortly.",
-                        code: "EMAIL_RATE_LIMIT",
-                    },
-                    { status: 429 },
-                );
-            }
-
+        let sentAdmin;
+        try {
+            sentAdmin = await sendBrevoEmail(apiKey, adminPayload);
+        } catch (err) {
+            console.error("Brevo send error", err);
             return NextResponse.json(
                 {
+                    ok: false,
+                    error: "We could not send your message right now.",
+                    code: "BREVO_FAIL",
+                },
+                { status: 502 },
+            );
+        }
+        if (!sentAdmin.ok) {
+            if (sentAdmin.status === 429) {
+                const retryInSec = 60; // best-effort; Brevo may include Retry-After in real responses
+                return NextResponse.json(
+                    {
+                        ok: false,
+                        error: "We're receiving a high volume of messages right now. Please try again shortly.",
+                        code: "EMAIL_RATE_LIMIT",
+                        retryInSec,
+                    },
+                    {
+                        status: 429,
+                        headers: { "Retry-After": String(retryInSec) },
+                    },
+                );
+            }
+            return NextResponse.json(
+                {
+                    ok: false,
                     error: "We could not send your message right now. Please try again in a minute.",
                     code: "BREVO_FAIL",
                 },
                 { status: 502 },
             );
+        }
+
+        // Mark this message as seen for deduplication
+        if (dedupeHash) {
+            try {
+                await setDuplicate(dedupeHash, dedupeWindow);
+            } catch (err) {
+                console.warn("dedupe set failed", err);
+            }
         }
 
         // Confirmation always uses the submitted name — for wholesale that is Contact name.
@@ -312,6 +700,7 @@ export async function POST(req: Request) {
         console.error(err);
         return NextResponse.json(
             {
+                ok: false,
                 error: "Something went wrong. Please try again.",
                 code: "UNKNOWN",
             },

@@ -20,7 +20,7 @@ export default function NotFound() {
                 </h1>
 
                 <p className="mt-3 text-sm text-charcoal/70">
-                    Sorry, the page you're looking for doesn't exist or may have
+                    Sorry, the page you&apos;re looking for doesn&apos;t exist or may have
                     been moved.
                 </p>
 
@@ -36,7 +36,7 @@ export default function NotFound() {
                 <p className="mt-4 text-xs text-charcoal/50">
                     If you believe this is a mistake, please{" "}
                     <Link
-                        href="/contact?reason=technical issues"
+                        href="/visit?reason=technical%20issues"
                         className="inline-block text-orange relative group"
                     >
                         <span className="relative z-10">contact us</span>

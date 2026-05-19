@@ -7,7 +7,7 @@ import {
     isValidElement,
     ReactElement,
 } from "react";
-import Hint from "@/components/contact/ui/Hint";
+import Hint from "@/components/visit/contact/ui/Hint";
 
 function isDomElement(el: ReactElement) {
     return typeof el.type === "string"; // "input", "textarea", etc.

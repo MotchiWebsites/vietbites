@@ -57,7 +57,7 @@ export default function OpenToday({
             )}{" "}
             {showLink && (
                 <Link
-                    href="/location"
+                    href="/visit"
                     className="underline hover:text-orange transition-colors"
                 >
                     (see full hours)

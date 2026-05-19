@@ -7,6 +7,20 @@ const nextConfig: NextConfig = {
         ],
         unoptimized: true,
     },
+    async redirects() {
+        return [
+            {
+                source: "/contact",
+                destination: "/visit",
+                permanent: true,
+            },
+            {
+                source: "/location",
+                destination: "/visit",
+                permanent: true,
+            },
+        ];
+    },
 };
 
 export default nextConfig;

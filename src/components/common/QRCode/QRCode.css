@@ -1,0 +1,24 @@
+/* 3D context and structure */
+.perspective {
+    perspective: 1000px;
+}
+
+.tilt {
+    transform-style: preserve-3d;
+}
+
+/* Give the QR a faint depth pop */
+.qrDepth {
+    transform: translateZ(12px);
+}
+
+/* Respect reduced motion — disable transforms and transitions */
+@media (prefers-reduced-motion: reduce) {
+    .perspective {
+        perspective: none;
+    }
+    .tilt,
+    .qrDepth {
+        transform: none !important;
+    }
+}

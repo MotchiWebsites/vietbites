@@ -65,7 +65,7 @@ export default async function MenuPage() {
                     Our menu is currently under maintenance. Please check back
                     later!
                     <br /> If issue persists, please contact us at{" "}
-                    <Link href="/contact">our contact page</Link>.
+                    <Link href="/visit">our contact page</Link>.
                 </p>
             </main>
         );

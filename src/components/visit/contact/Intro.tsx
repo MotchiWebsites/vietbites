@@ -86,9 +86,9 @@ export default function Intro({ className = "" }: { className?: string }) {
                     <li>Relevant order or event details.</li>
                 </ul>
                 <p className="mt-3 text-xs text-charcoal/60">
-                    Curious about when we're open?{" "}
+                    Curious about when we&apos;re open?{" "}
                     <Link
-                        href="/location"
+                        href="/visit"
                         aria-label="Check our business hours"
                         className="font-semibold text-orange underline underline-offset-2 hover:text-orange-hover transition-all"
                     >

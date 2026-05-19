@@ -26,16 +26,16 @@ export default async function Footer() {
                     />
                     <div className="mt-3 flex flex-col gap-3 w-1/2 sm:w-1/3 md:flex-row md:w-full md:gap-4">
                         <Link
-                            href="/contact"
+                            href="/visit"
                             className="inline-flex items-center justify-center rounded-lg bg-orange text-clean px-3 py-2 text-sm font-semibold shadow transition ease-in-out duration-300 hover:bg-orange-hover active:bg-orange-active active:scale-[.98] w-full sm:w-auto"
                         >
-                            Order Online
+                            Visit Us
                         </Link>
                         <Link
                             href="/menu"
                             className="inline-flex items-center justify-center button-outline py-2 px-3 text-sm font-heading font-medium rounded-lg w-full sm:w-auto"
                         >
-                            Contact Us
+                            Menu
                         </Link>
                     </div>
                 </div>
@@ -58,7 +58,7 @@ export default async function Footer() {
                     <p className="mt-2 text-charcoal/80 text-center md:text-left">
                         Open Sat to Thurs •{" "}
                         <Link
-                            href="/location"
+                            href="/visit"
                             className="underline hover:text-orange ease-in-out duration-300 transition-colors"
                         >
                             Check our hours
