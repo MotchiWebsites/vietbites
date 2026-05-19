@@ -106,7 +106,7 @@ export default async function Hero({
                                 Our Story
                             </Link>
                             <Link
-                                href="/location"
+                                href="/visit"
                                 className="text-center button-outline px-5 py-3 text-sm md:text-base font-heading font-medium rounded-lg"
                             >
                                 Visit Us

@@ -44,16 +44,16 @@ export default function LocationSection() {
                     <div className="flex flex-col 2xl:flex-row gap-6 pt-2 md:items-center">
                         <div className="flex flex-col 2xl:flex-row items-center justify-center md:justify-start gap-4">
                             <Link
-                                href="/location"
+                                href="/visit"
                                 className="flex w-full 2xl:w-auto items-center justify-center rounded-lg bg-orange text-clean px-5 py-3 font-semibold shadow transition duration-200 hover:bg-orange-hover active:bg-orange-active active:scale-[.98]"
                             >
-                                Hours & Directions
+                                Visit Us
                             </Link>
                             <Link
-                                href="/contact"
+                                href="/menu"
                                 className="button-outline w-full 2xl:w-auto py-3 px-5 font-heading font-medium rounded-lg text-center"
                             >
-                                Contact Us
+                                Menu
                             </Link>
                         </div>
 
@@ -71,7 +71,7 @@ export default function LocationSection() {
 
                 {/* Image block (no width/height warning: fill + aspect) */}
                 <div className="flex justify-center md:justify-end">
-                    <div className="relative w-full max-w-[520px] lg:max-w-[360px] aspect-3/4 overflow-hidden rounded-xl shadow-sm ring-1 ring-charcoal/10">
+                    <div className="relative w-full max-w-130 lg:max-w-90 aspect-3/4 overflow-hidden rounded-xl shadow-sm ring-1 ring-charcoal/10">
                         <Image
                             src="/images/StoreFront.webp"
                             alt="VietBites Storefront"
