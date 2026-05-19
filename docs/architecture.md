@@ -96,6 +96,7 @@ The contact form includes:
 -   Rate limiting (in-memory)
 -   Subject & message length caps
 -   Email validation
+-   reCAPTCHA (Google)
 
 These are intentional and should not be removed lightly.
 
