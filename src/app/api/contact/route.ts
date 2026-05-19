@@ -87,7 +87,7 @@ import {
     isDuplicate,
     setDuplicate,
     hasQuotaError,
-} from "@/lib/rate-limit";
+} from "@/lib/email/rate-limit";
 
 function getClientIp(req: Request) {
     const xff = req.headers.get("x-forwarded-for");

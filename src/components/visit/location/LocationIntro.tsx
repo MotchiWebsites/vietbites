@@ -6,6 +6,16 @@ import SectionHeader from "../../common/SectionHeader";
 import QRCode from "../../common/QRCode/QRCode";
 import Image from "next/image";
 
+import { FaPhone, FaLocationDot } from "react-icons/fa6";
+
+function sanitizePhoneForHref(phone: string) {
+    return phone.replace(/[^\d+]/g, "");
+}
+
+const address = process.env.NEXT_PUBLIC_VIETBITES_LOCATION || "246 Gerrard St E, Toronto, ON M5A 2G2";
+const rawPhone = process.env.NEXT_PUBLIC_VIETBITES_PHONE || "(437) 607-8296";
+const phoneHref = rawPhone ? `tel:${sanitizePhoneForHref(rawPhone)}` : "";
+
 function toMinutes(t: string) {
     const [hh, mm = "0"] = t.split(":").map((s) => s.trim());
     return Number(hh) * 60 + Number(mm);
@@ -169,7 +179,7 @@ export default function LocationIntro({ hours }: { hours: OpeningHour[] }) {
                             aria-hidden="true"
                         />
                         <div className="text-center">
-                            <div className="text-base md:text-lg lg:text-xl font-heading font-semibold leading-tight">
+                            <div className="text-base md:text-lg font-heading font-semibold leading-tight">
                                 <OpenToday hours={hours} showLink={false} />
                             </div>
                             <div className="text-xs text-charcoal/70 mt-0.5">
@@ -181,6 +191,35 @@ export default function LocationIntro({ hours }: { hours: OpeningHour[] }) {
                             aria-hidden="true"
                         />
                     </div>
+                </div>
+
+
+                <div className="w-3/4 mx-auto mt-4 flex flex-col items-start gap-2 text-charcoal/80 font-medium">
+                    {address && (
+                        <p className="inline-flex items-center gap-2 text-xs md:text-sm text-center">
+                            <FaLocationDot
+                                className="h-4 w-4 text-orange shrink-0"
+                                aria-hidden="true"
+                            />
+                            <span>{address}</span>
+                        </p>
+                    )}
+
+                    {rawPhone && (
+                        <p className="inline-flex items-center gap-2 text-xs md:text-sm">
+                            <FaPhone
+                                className="h-4 w-4 text-orange shrink-0"
+                                aria-hidden="true"
+                            />
+                            <a
+                                href={phoneHref}
+                                className="text-charcoal/80 hover:underline"
+                                aria-label={`Call ${rawPhone}`}
+                            >
+                                {rawPhone}
+                            </a>
+                        </p>
+                    )}
                 </div>
 
                 <div className="mt-3 flex gap-3 justify-center">
