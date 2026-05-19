@@ -48,7 +48,7 @@ The contact page serves **multiple purposes**:
 ### Reason Selection
 
 -   The **Reason field always exists**
--   URL parameters (`/contact?reason=wholesale`) pre-select the reason
+-   URL parameters (`/visit?reason=wholesale`) pre-select the reason
 -   The reason controls:
     -   Form heading text
     -   Required fields

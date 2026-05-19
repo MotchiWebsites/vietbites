@@ -2,8 +2,8 @@
 
 import OpenToday from "@/components/homepage/Hero/OpenToday";
 import type { OpeningHour } from "@/lib/notion/hours";
-import SectionHeader from "../common/SectionHeader";
-import QRCode from "../homepage/Hero/QRCode/QRCode";
+import SectionHeader from "../../common/SectionHeader";
+import QRCode from "../../common/QRCode/QRCode";
 import Image from "next/image";
 
 function toMinutes(t: string) {
@@ -22,12 +22,13 @@ function getToday(hours: OpeningHour[]) {
         "friday",
         "saturday",
     ];
-    
+
     const todayName = dayNames[now.getDay()];
-    
+
     if (Array.isArray(hours)) {
         const found = hours.find(
-            (h: OpeningHour) => (h.day || "").toString().toLowerCase() === todayName,
+            (h: OpeningHour) =>
+                (h.day || "").toString().toLowerCase() === todayName,
         );
         if (found) return found;
 
@@ -57,7 +58,7 @@ function normalizeIntervals(
     }
 
     if (today.closed) return null;
-    
+
     if (today.open && today.close) {
         return {
             start: today.open,
@@ -75,7 +76,7 @@ function statusMessage(hours: OpeningHour[]) {
     const interval = today ? normalizeIntervals(today as OpeningHour) : null;
 
     if (!interval) {
-        return "We're closed :( Check our hours below and visit another day.";
+        return "Unfortunately, we're closed :( Check our hours below!";
     }
 
     const openNow = (() => {
@@ -116,10 +117,17 @@ function statusMessage(hours: OpeningHour[]) {
 }
 
 export default function LocationIntro({ hours }: { hours: OpeningHour[] }) {
+    const scrollToWithOffset = (el: Element | null, offset = 100) => {
+        if (!el || typeof window === "undefined") return;
+        const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const top = (el as HTMLElement).getBoundingClientRect().top + window.pageYOffset - offset;
+        window.scrollTo({ top, behavior: reduce ? "auto" : "smooth" });
+    };
+
     return (
         <>
             <SectionHeader
-                title="Visit Us"
+                title="VISIT US"
                 subtitle={
                     <>
                         We&apos;re located in Downtown Toronto! Come by for bánh
@@ -128,7 +136,10 @@ export default function LocationIntro({ hours }: { hours: OpeningHour[] }) {
                     </>
                 }
             />
-            <div className="rounded-xl bg-clean p-6 shadow-sm ring-1 ring-charcoal/10 max-w-lg xl:max-w-md mx-auto mt-6 space-y-4">
+            <div
+                id="visit"
+                className="rounded-xl bg-clean p-6 shadow-sm ring-1 ring-charcoal/10 max-w-lg xl:max-w-md mx-auto mt-6 space-y-4"
+            >
                 <div className="flex items-center gap-3">
                     <Image
                         src="/images/logos/LogoCircle.png"
@@ -170,6 +181,26 @@ export default function LocationIntro({ hours }: { hours: OpeningHour[] }) {
                             aria-hidden="true"
                         />
                     </div>
+                </div>
+
+                <div className="mt-3 flex gap-3 justify-center">
+                    <button
+                        type="button"
+                        className="inline-flex items-center justify-center rounded-md bg-orange px-3 py-2 text-sm font-semibold text-clean shadow hover:bg-orange-hover active:bg-orange-active"
+                        onClick={() => scrollToWithOffset(document.getElementById("hours"), 100)}
+                        aria-controls="hours"
+                    >
+                        View hours
+                    </button>
+
+                    <button
+                        type="button"
+                        className="button-outline inline-flex items-center justify-center rounded-md bg-clean border border-charcoal/10 px-3 py-2 text-sm font-semibold text-charcoal shadow hover:bg-gray-50 active:bg-gray-100"
+                        onClick={() => scrollToWithOffset(document.getElementById("contact"), 100)}
+                        aria-controls="contact"
+                    >
+                        Contact us
+                    </button>
                 </div>
 
                 <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-[1fr_auto] sm:items-center">

@@ -47,7 +47,7 @@ export function StoryHero() {
                             Explore the Menu
                         </Link>
                         <Link
-                            href="/location"
+                            href="/visit"
                             className="button-outline px-5 py-3 rounded-lg font-heading font-medium"
                         >
                             Visit Us

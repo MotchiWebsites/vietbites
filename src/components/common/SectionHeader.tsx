@@ -41,7 +41,7 @@ export default function SectionHeader({
         <header className={clsx("flex flex-col gap-2", alignClass, className)}>
             <h1
                 className={clsx(
-                    "contact-heading font-semibold tracking-tight text-orange",
+                    "contact-heading font-semibold tracking-tight text-orange pt-4",
                     titleSize
                 )}
             >

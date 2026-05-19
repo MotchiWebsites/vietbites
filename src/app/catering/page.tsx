@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 };
 
 function contactUrl(reason: string) {
-    return `/contact?reason=${encodeURIComponent(reason)}`;
+    return `/visit?reason=${encodeURIComponent(reason)}`;
 }
 
 export default function CateringPage() {
