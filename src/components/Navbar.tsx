@@ -71,14 +71,16 @@ export default function Navbar() {
 
                 {/* Mobile actions */}
                 <div className="relative z-120 flex shrink-0 items-center gap-2 lg:hidden">
-                    <a
-                        href="https://vietbites.pikapoint.io/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="rounded-full bg-orange px-3 py-2 text-xs font-semibold text-clean shadow-sm transition hover:bg-orange-hover active:scale-[.98] xs:px-4 sm:text-sm"
-                    >
-                        Order Now
-                    </a>
+                    {!open && (
+                        <a
+                            href="https://vietbites.pikapoint.io/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="rounded-full bg-orange px-3 py-2 text-xs font-semibold text-clean shadow-sm transition hover:bg-orange-hover active:scale-[.98] xs:px-4 sm:text-sm"
+                        >
+                            Order Now
+                        </a>
+                    )}
 
                     <Hamburger
                         toggled={open}
