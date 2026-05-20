@@ -89,7 +89,9 @@ button:not(.select-box button):not(#menu button) {
     color: var(--clean);
     background-color: var(--orange);
     border-radius: 8px;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease,
+    transition:
+        background-color 0.3s ease,
+        box-shadow 0.3s ease,
         transform 0.06s ease;
 }
 
@@ -120,7 +122,10 @@ button:focus-visible:not(.select-box button):not(#menu button) {
     border: 1px solid color-mix(in oklab, var(--charcoal) 15%, transparent);
     background: var(--clean);
     color: var(--charcoal);
-    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+    transition:
+        background-color 0.3s,
+        color 0.3s,
+        border-color 0.3s;
 }
 
 .button-outline:hover:not(.select-box button):not(#menu button) {
@@ -142,14 +147,16 @@ a:not(nav a):not(footer a):not(.section-cream a):not(#menu a):not(#hero a):not(
     ):not(#visit a):not(#catering a):not(#not-found a) {
     color: var(--orange);
     text-decoration: none;
-    transition: color 0.3s ease, text-decoration-color 0.3s ease;
+    transition:
+        color 0.3s ease,
+        text-decoration-color 0.3s ease;
 }
 
 a:hover:not(nav a):not(footer a):not(.section-cream a):not(#menu a):not(
         #hero a
     ):not(#hero a):not(#story-link a):not(#visit a):not(#catering a):not(
         #not-found a
-    ) {
+    ):not(#navbar a) {
     color: var(--clay);
     text-decoration: underline;
 }
