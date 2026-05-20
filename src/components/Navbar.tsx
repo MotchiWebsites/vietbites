@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { Twirl as Hamburger } from "hamburger-react";
+import { MdKeyboardArrowRight } from "react-icons/md";
 import { usePathname } from "next/navigation";
 
 const navLinks = [
@@ -18,10 +19,7 @@ export default function Navbar() {
     const pathname = usePathname();
 
     return (
-        <header
-            id="navbar"
-            className="sticky top-0 z-90 bg-clean/95 backdrop-blur supports-backdrop-filter:bg-clean/80 border-b border-charcoal/10 shadow-sm"
-        >
+        <header className="sticky top-0 z-90 bg-clean/95 backdrop-blur supports-backdrop-filter:bg-clean/80 border-b border-charcoal/10 shadow-sm">
             <div className="h-1 bg-orange/80"></div>
 
             <nav className="mx-auto max-w-360 px-4 py-3 flex items-center justify-between">
@@ -71,8 +69,17 @@ export default function Navbar() {
                     </li>
                 </ul>
 
-                {/* Mobile hamburger */}
-                <div className="relative z-120 lg:hidden">
+                {/* Mobile actions */}
+                <div className="relative z-120 flex shrink-0 items-center gap-2 lg:hidden">
+                    <a
+                        href="https://vietbites.pikapoint.io/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="rounded-full bg-orange px-3 py-2 text-xs font-semibold text-clean shadow-sm transition hover:bg-orange-hover active:scale-[.98] xs:px-4 sm:text-sm"
+                    >
+                        Order Now
+                    </a>
+
                     <Hamburger
                         toggled={open}
                         toggle={setOpen}
@@ -109,22 +116,10 @@ export default function Navbar() {
                                     >
                                         <span>{l.label}</span>
                                         {/* Right arrow icon for navigation */}
-                                        <span className="ml-2">
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill="none"
-                                                viewBox="0 0 24 24"
-                                                stroke="currentColor"
-                                                className="h-4 w-4 opacity-70"
-                                            >
-                                                <path
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    strokeWidth={2}
-                                                    d="M9 5l7 7-7 7"
-                                                />
-                                            </svg>
-                                        </span>
+                                        <MdKeyboardArrowRight
+                                            size={18}
+                                            className="text-charcoal/70"
+                                        />
                                     </Link>
                                 </li>
                             );
@@ -143,21 +138,6 @@ export default function Navbar() {
                     </ul>
                 </div>
             </nav>
-
-            {/* Mobile sticky CTA (Order Now) */}
-            <div
-                className={`lg:hidden fixed inset-x-0 bottom-4 z-40 flex justify-end right-20 ${open ? "hidden" : ""}`}
-                style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
-            >
-                <a
-                    href="https://vietbites.pikapoint.io/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mx-4 w-1/2 max-w-50 rounded-full bg-orange text-clean px-5 py-2.5 text-center text-sm font-semibold shadow-lg transition-transform duration-150 hover:bg-orange-hover active:scale-[.98] sm:px-6 sm:py-3 sm:text-base"
-                >
-                    Order Now
-                </a>
-            </div>
         </header>
     );
 }
