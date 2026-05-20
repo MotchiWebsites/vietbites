@@ -95,7 +95,7 @@ export default async function Hero({
                                 target="_blank"
                                 className="text-center rounded-lg bg-charcoal text-clean px-5 py-3 font-semibold shadow transition duration-200 hover:bg-charcoal/95 active:bg-charcoal-active active:scale-[.98]"
                             >
-                                Order Online
+                                Order Now
                             </a>
                         </div>
                         <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">

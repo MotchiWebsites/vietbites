@@ -18,7 +18,10 @@ export default function Navbar() {
     const pathname = usePathname();
 
     return (
-        <header className="sticky top-0 z-90 bg-clean/95 backdrop-blur supports-backdrop-filter:bg-clean/80 border-b border-charcoal/10 shadow-sm">
+        <header
+            id="navbar"
+            className="sticky top-0 z-90 bg-clean/95 backdrop-blur supports-backdrop-filter:bg-clean/80 border-b border-charcoal/10 shadow-sm"
+        >
             <div className="h-1 bg-orange/80"></div>
 
             <nav className="mx-auto max-w-360 px-4 py-3 flex items-center justify-between">
@@ -63,13 +66,13 @@ export default function Navbar() {
                             target="_blank"
                             className="inline-flex items-center rounded-full bg-orange text-clean px-4 py-2 text-sm font-semibold shadow transition duration-200 hover:bg-orange-hover active:bg-orange-active active:scale-[.98]"
                         >
-                            Order Online
+                            Order Now
                         </a>
                     </li>
                 </ul>
 
                 {/* Mobile hamburger */}
-                <div className="lg:hidden">
+                <div className="relative z-120 lg:hidden">
                     <Hamburger
                         toggled={open}
                         toggle={setOpen}
@@ -134,12 +137,27 @@ export default function Navbar() {
                                 rel="noopener noreferrer"
                                 className="block max-w-sm mx-auto text-center rounded-full bg-orange text-clean px-4 py-2 font-semibold shadow hover:bg-clay transition-colors active:scale-[.98]"
                             >
-                                Order Online
+                                Order Now
                             </a>
                         </li>
                     </ul>
                 </div>
             </nav>
+
+            {/* Mobile sticky CTA (Order Now) */}
+            <div
+                className={`lg:hidden fixed inset-x-0 bottom-4 z-40 flex justify-end right-20 ${open ? "hidden" : ""}`}
+                style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+            >
+                <a
+                    href="https://vietbites.pikapoint.io/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mx-4 w-1/2 max-w-50 rounded-full bg-orange text-clean px-5 py-2.5 text-center text-sm font-semibold shadow-lg transition-transform duration-150 hover:bg-orange-hover active:scale-[.98] sm:px-6 sm:py-3 sm:text-base"
+                >
+                    Order Now
+                </a>
+            </div>
         </header>
     );
 }
