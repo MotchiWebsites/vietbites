@@ -50,7 +50,7 @@ export default function FeaturedMenu({
                         target="_blank"
                         className="text-center rounded-lg bg-charcoal text-white px-5 py-2 text-sm font-semibold shadow hover:bg-charcoal/95 transition-colors focus:outline-none focus:ring-2 focus:ring-charcoal focus:ring-offset-2"
                     >
-                        Order Online
+                        Order Now
                     </a>
                 </div>
             </div>
