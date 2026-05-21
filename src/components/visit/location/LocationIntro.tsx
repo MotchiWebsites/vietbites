@@ -16,6 +16,11 @@ const address = process.env.NEXT_PUBLIC_VIETBITES_LOCATION || "246 Gerrard St E,
 const rawPhone = process.env.NEXT_PUBLIC_VIETBITES_PHONE || "(437) 607-8296";
 const phoneHref = rawPhone ? `tel:${sanitizePhoneForHref(rawPhone)}` : "";
 
+const displayAddress = address?.replace(
+    /([A-Z]\d[A-Z])\s+(\d[A-Z]\d)$/i,
+    "$1\u00A0$2",
+);
+
 function toMinutes(t: string) {
     const [hh, mm = "0"] = t.split(":").map((s) => s.trim());
     return Number(hh) * 60 + Number(mm);
@@ -194,14 +199,14 @@ export default function LocationIntro({ hours }: { hours: OpeningHour[] }) {
                 </div>
 
 
-                <div className="w-3/4 mx-auto mt-4 flex flex-col items-start gap-2 text-charcoal/80 font-medium">
+                <div className="w-full max-w-[520px] mx-auto mt-4 flex flex-col items-start gap-2 px-4 text-charcoal/80 font-medium">
                     {address && (
                         <p className="inline-flex items-center gap-2 text-xs md:text-sm text-center">
                             <FaLocationDot
                                 className="h-4 w-4 text-orange shrink-0"
                                 aria-hidden="true"
                             />
-                            <span>{address}</span>
+                            <span>{displayAddress}</span>
                         </p>
                     )}
 
@@ -249,7 +254,7 @@ export default function LocationIntro({ hours }: { hours: OpeningHour[] }) {
                     </p>
                     <a
                         href="https://www.instagram.com/vietbites.to"
-                        className="inline-flex items-center justify-center rounded-md bg-orange px-4 py-2 text-sm font-semibold text-clean shadow hover:bg-orange-hover active:bg-orange-active"
+                        className="mx-auto inline-flex w-full max-w-[250px] items-center justify-center rounded-md bg-orange px-4 py-2 text-sm font-semibold text-clean shadow hover:bg-orange-hover active:bg-orange-active sm:w-auto sm:max-w-none sm:mx-0"
                         target="_blank"
                         rel="noreferrer noopener"
                     >
