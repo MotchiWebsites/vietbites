@@ -98,20 +98,6 @@ export default async function Hero({
                                 Order Now
                             </a>
                         </div>
-                        <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
-                            <Link
-                                href="/story"
-                                className="text-center button-outline px-5 py-3 text-sm md:text-base font-heading font-medium rounded-lg"
-                            >
-                                Our Story
-                            </Link>
-                            <Link
-                                href="/visit"
-                                className="text-center button-outline px-5 py-3 text-sm md:text-base font-heading font-medium rounded-lg"
-                            >
-                                Visit Us
-                            </Link>
-                        </div>
                     </div>
                 </div>
 
