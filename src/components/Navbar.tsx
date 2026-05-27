@@ -8,10 +8,10 @@ import { MdKeyboardArrowRight } from "react-icons/md";
 import { usePathname } from "next/navigation";
 
 const navLinks = [
-    { href: "/story", label: "Our Story" },
-    { href: "/visit", label: "Visit Us" },
     { href: "/menu", label: "Menu" },
     { href: "/catering", label: "Catering" },
+    { href: "/story", label: "Our Story" },
+    { href: "/visit", label: "Visit Us" },
 ];
 
 export default function Navbar() {
